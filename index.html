@@ -115,6 +115,7 @@
       var h = React.createElement;
       var user = props.user;
       var onUpdateUser = props.onUpdateUser;
+      var onNavigate = props.onNavigate;
       var _s = React.useState, saving = _s(false), setSaving = saving[1]; saving = saving[0];
       var _msg = _s(''), msg = _msg[0], setMsg = _msg[1];
       var _name = _s(user?.name || ''), name = _name[0], setName = _name[1];
@@ -132,7 +133,7 @@
           .then(function (res) {
             setSaving(false);
             if (res.error) { setMsg('Error: ' + res.error.message); }
-            else { setMsg('Perfil actualizado'); if (onUpdateUser) onUpdateUser({ name: name, phone: phone, location: loc }); }
+            else { setMsg('Perfil actualizado'); if (onUpdateUser) onUpdateUser({ name: name, phone: phone, location: loc }); setTimeout(function() { if (onNavigate) onNavigate('home'); }, 1200); }
           });
       };
 
@@ -200,7 +201,7 @@
                 h('button', { onClick: handleSave, disabled: saving, className: 'px-8 py-3 bg-[#6D28D9] hover:bg-[#5B21B6] text-white rounded-lg font-bold shadow-lg shadow-purple-200 transition-all disabled:opacity-50' }, saving ? 'Guardando...' : 'Guardar Cambios'),
                 h('div', { className: 'flex items-center gap-3' },
                   msg && h('span', { className: 'text-sm font-semibold ' + (msg.startsWith('Error') ? 'text-red-600' : 'text-green-600') }, msg),
-                  h('button', { onClick: function () { setName(user?.name || ''); setPhone(user?.phone || ''); setLoc(user?.location || ''); setMsg(''); }, className: 'px-6 py-3 border border-slate-200 text-slate-600 rounded-lg font-medium hover:bg-slate-50' }, 'Descartar')
+                  h('button', { onClick: function () { setName(user?.name || ''); setPhone(user?.phone || ''); setLoc(user?.location || ''); setMsg(''); if (onNavigate) onNavigate('home'); }, className: 'px-6 py-3 border border-slate-200 text-slate-600 rounded-lg font-medium hover:bg-slate-50' }, 'Descartar')
                 )
               )
             )
@@ -209,54 +210,7 @@
       );
     }
 
-    // ===== HISTORIAL PAGE (connected to Supabase) =====
-    function HistorialPage(props) {
-      var h = React.createElement;
-      var user = props.user;
-      var _s = React.useState;
-      var _data = _s([]), data = _data[0], setData = _data[1];
-      var _loading = _s(true), loading = _loading[0], setLoading = _loading[1];
-
-      React.useEffect(function () {
-        if (!user?.id) { setLoading(false); return; }
-        window.sb.from('simulation_history').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(50)
-          .then(function (res) { setData(res.data || []); setLoading(false); });
-      }, [user]);
-
-      return h('div', { className: 'flex-1 overflow-y-auto bg-[#F7F9FC] p-6' },
-        h('h1', { className: 'text-2xl font-bold text-slate-900 mb-2' }, 'Historial de Simulaciones'),
-        h('p', { className: 'text-slate-500 mb-6' }, 'Últimas simulaciones realizadas en la plataforma.'),
-        loading ? h('div', { className: 'text-center py-12 text-slate-400' }, 'Cargando...') :
-          data.length === 0 ? h('div', { className: 'text-center py-12' },
-            h('div', { className: 'text-5xl mb-4' }, '📊'),
-            h('p', { className: 'text-slate-500 font-medium' }, 'Aún no has realizado simulaciones.'),
-            h('p', { className: 'text-slate-400 text-sm mt-1' }, 'Tus resultados aparecerán aquí una vez ejecutes tu primera simulación.')
-          ) :
-            h('div', { className: 'space-y-3' },
-              data.map(function (item) {
-                var isMulti = item.simulation_type === 'multi';
-                var d = new Date(item.created_at);
-                var dateStr = d.toLocaleDateString('es-CO') + ' ' + d.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
-                return h('div', { key: item.id, className: 'bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md transition-shadow flex items-center justify-between' },
-                  h('div', { className: 'flex items-center gap-4' },
-                    h('div', { className: 'w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-sm ' + (isMulti ? 'bg-[#6D28D9]' : 'bg-[#3B82F6]') }, isMulti ? 'ME' : 'EU'),
-                    h('div', null,
-                      h('h3', { className: 'font-bold text-slate-900 text-sm' }, item.title),
-                      h('div', { className: 'flex items-center gap-3 mt-1' },
-                        h('span', { className: 'text-[10px] text-slate-400' }, dateStr),
-                        h('span', { className: 'text-[10px] text-slate-400' }, '|'),
-                        h('span', { className: 'text-[10px] text-slate-500' }, 'Metales: ' + (item.metals_used || []).join(', ')),
-                        h('span', { className: 'text-[10px] text-slate-400' }, '|'),
-                        h('span', { className: 'text-[10px] text-slate-500' }, (item.area_m2 || 0) + ' m²')
-                      )
-                    )
-                  ),
-                  h('span', { className: 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700' }, item.status || 'Completado')
-                );
-              })
-            )
-      );
-    }
+    // Old HistorialPage removed — using new version with delete support above
 
     // ===== HISTORIAL PAGE (with delete) =====
     function HistorialPage(props) {
@@ -403,7 +357,7 @@
         currentPage === 'single' && h(window.SingleSimulation, { preloadedParams: preloadedParams, savedState: singleState, onSaveState: setSingleState }),
         currentPage === 'multi' && h(window.MultiSimulation, { savedState: multiState, onSaveState: setMultiState }),
         currentPage === 'historial' && h(HistorialPage, { user: user }),
-        currentPage === 'perfil' && h(ProfilePage, { user: user, onUpdateUser: handleUpdateUser })
+        currentPage === 'perfil' && h(ProfilePage, { user: user, onUpdateUser: handleUpdateUser, onNavigate: handleNavigate })
       );
     }
 
