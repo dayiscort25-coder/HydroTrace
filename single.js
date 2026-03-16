@@ -27,6 +27,8 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
   var _run = _s(false), running = _run[0], setRunning = _run[1];
   var _pt = _s('Mn\t63.8\t56\t21.7\t22.7'), pasteText = _pt[0], setPasteText = _pt[1];
   var _pm = _s(''), pasteMsg = _pm[0], setPasteMsg = _pm[1];
+  var _sn = _s(''), simName = _sn[0], setSimName = _sn[1];
+  var _sm = _s(''), saveMsg = _sm[0], setSaveMsg = _sm[1];
 
   var defaultMetals = Object.entries(E.DM).map(function (e) { return { name: e[0], LW: String(e[1].LW), ML: String(e[1].ML), LE: String(e[1].LE), Ler: String(e[1].Ler), Bmax: String(e[1].Bmax), kb: String(e[1].kb), kw: String(e[1].kw), n: String(e[1].n), active: true }; });
   var _met = _s(init.metals || defaultMetals), metals = _met[0], setMetals = _met[1];
@@ -587,18 +589,28 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
         )
       ),
 
-      // Save to Supabase after results
-      results && h('div', { className: 'text-center py-4' },
-        h('button', {
-          onClick: function () {
-            var ms = results.ms;
-            window.saveSimulation && window.saveSimulation('single', 'Evento Único - ' + ms.join(', ') + ' (' + new Date().toLocaleDateString('es-CO') + ')',
-              { area: area, intensity: results.Ip, duration: duration, dryDays: dryDays, slope: slope, material: material },
-              { tlw: results.tlw, imp: results.imp, dm: results.dm, riesgo: results.riesgo },
-              ms, parseFloat(area) || 0
-            ).then(function () { setPasteMsg('Guardado en historial'); });
-          }, className: 'bg-[#1E3A5F] text-white px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-[#15304f] transition-colors'
-        }, 'Guardar en Historial')
+      // Save to Supabase after results — with name input
+      results && h('div', { className: 'bg-white rounded-xl border border-slate-200 p-5 text-center' },
+        h('h3', { className: 'font-bold text-slate-900 mb-3' }, 'Guardar Simulación en Historial'),
+        h('div', { className: 'flex items-center gap-3 max-w-lg mx-auto' },
+          h('input', {
+            type: 'text', value: simName, onChange: function(e) { setSimName(e.target.value); },
+            placeholder: 'Nombre de la simulación (ej: Estudio Calle 26)',
+            className: 'flex-1 px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-300 focus:outline-none'
+          }),
+          h('button', {
+            onClick: function() {
+              var ms = results.ms;
+              var title = simName.trim() || ('Evento Único - ' + ms.join(', ') + ' (' + new Date().toLocaleDateString('es-CO') + ')');
+              window.saveSimulation && window.saveSimulation('single', title,
+                { area: area, intensity: results.Ip, duration: duration, dryDays: dryDays, slope: slope, material: material },
+                { tlw: results.tlw, imp: results.imp, dm: results.dm, riesgo: results.riesgo },
+                ms, parseFloat(area) || 0
+              ).then(function() { setSaveMsg('Guardado exitosamente'); setSimName(''); });
+            }, className: 'bg-[#1E3A5F] text-white px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-[#15304f] transition-colors whitespace-nowrap'
+          }, 'Guardar')
+        ),
+        saveMsg && h('p', { className: 'text-green-600 text-sm font-semibold mt-2 animate-fadeIn' }, saveMsg)
       ),
 
       // Footer
