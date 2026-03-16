@@ -255,6 +255,18 @@ function MultiSimulation({ savedState, onSaveState }) {
     ),
 
     h('div', { className: 'p-6 space-y-6' },
+      // Simulation Title (FIRST)
+      h('div', { className: 'bg-white rounded-xl border border-slate-200 p-4 flex items-center gap-4' },
+        h('div', { className: 'w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center text-lg flex-shrink-0' }, '📝'),
+        h('div', { className: 'flex-1' },
+          h('label', { className: 'block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1' }, 'Título de la simulación'),
+          h('input', {
+            type: 'text', value: simName, onChange: function(e) { setSimName(e.target.value); },
+            placeholder: 'Ej: Campaña Zona Norte — Multieventos Diciembre',
+            className: 'w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-purple-300 focus:outline-none'
+          })
+        )
+      ),
       // Geometry
       h('div', { className: 'bg-white rounded-xl border border-slate-200 p-5' },
         h('h3', { className: 'font-bold text-slate-900 mb-4' }, 'Geometría del área de estudio'),

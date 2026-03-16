@@ -25,47 +25,69 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <style>
-    * {
-      font-family: 'Inter', sans-serif;
+    * { font-family: 'Inter', sans-serif; }
+
+    :root {
+      --bg-main: #F7F9FC; --bg-card: #ffffff; --bg-sidebar: #ffffff;
+      --text-primary: #0f172a; --text-secondary: #64748b; --text-muted: #94a3b8;
+      --border: #e2e8f0; --accent: #3B82F6; --accent-hover: #2563EB;
+      --card-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .dark {
+      --bg-main: #0f172a; --bg-card: #1e293b; --bg-sidebar: #1e293b;
+      --text-primary: #f1f5f9; --text-secondary: #94a3b8; --text-muted: #64748b;
+      --border: #334155; --accent: #60a5fa; --accent-hover: #3b82f6;
+      --card-shadow: 0 1px 3px rgba(0,0,0,0.3);
     }
 
-    body {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
+    body { margin: 0; padding: 0; overflow: hidden; background: var(--bg-main); color: var(--text-primary); transition: background 0.3s, color 0.3s; }
+
+    .dark body, .dark .bg-white, .dark [class*="bg-white"] { background-color: var(--bg-card) !important; color: var(--text-primary) !important; }
+    .dark .bg-\[\\#F7F9FC\], .dark [class*="bg-[#F7F9FC]"] { background-color: var(--bg-main) !important; }
+    .dark .text-slate-900, .dark [class*="text-slate-900"] { color: var(--text-primary) !important; }
+    .dark .text-slate-500, .dark [class*="text-slate-500"] { color: var(--text-secondary) !important; }
+    .dark .text-slate-400, .dark [class*="text-slate-400"] { color: var(--text-muted) !important; }
+    .dark .border-slate-200, .dark [class*="border-slate-200"] { border-color: var(--border) !important; }
+    .dark .bg-slate-50, .dark [class*="bg-slate-50"] { background-color: #1e293b !important; }
+    .dark .hover\:bg-slate-50:hover { background-color: #334155 !important; }
+    .dark input, .dark select, .dark textarea { background-color: #334155 !important; border-color: #475569 !important; color: #f1f5f9 !important; }
+    .dark .shadow-lg { box-shadow: 0 10px 25px rgba(0,0,0,0.4) !important; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-fadeIn { animation: fadeIn 0.5s ease-out; }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    .dark ::-webkit-scrollbar-track { background: #1e293b; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    /* Mobile overlay for sidebar */
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 40; }
+    .sidebar-overlay.active { display: block; }
+    .mobile-hamburger { display: none; position: fixed; top: 12px; left: 12px; z-index: 50; background: var(--accent); color: white; border: none; border-radius: 10px; width: 40px; height: 40px; font-size: 20px; cursor: pointer; box-shadow: 0 2px 8px rgba(59,130,246,0.4); }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .mobile-hamburger { display: flex; align-items: center; justify-content: center; }
+      .sidebar-mobile { position: fixed !important; left: -260px; top: 0; bottom: 0; z-index: 45; transition: left 0.3s ease; }
+      .sidebar-mobile.open { left: 0; }
+      .main-content { margin-left: 0 !important; }
+      .grid-cols-3, [class*="grid-cols-3"] { grid-template-columns: 1fr !important; }
+      .grid-cols-4, [class*="grid-cols-4"] { grid-template-columns: 1fr 1fr !important; }
+      .hero-flex { flex-direction: column !important; }
+      .hero-flex > div { width: 100% !important; }
+      .hero-flex .h-72 { height: 180px !important; }
+      .login-flex { flex-direction: column !important; }
+      .login-flex > div { width: 100% !important; min-height: auto !important; }
+      .login-flex .login-image-panel { display: none !important; }
     }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .animate-fadeIn {
-      animation: fadeIn 0.5s ease-out;
-    }
-
-    ::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: #f1f5f9;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 3px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
+    @media (max-width: 480px) {
+      .grid-cols-4, [class*="grid-cols-4"] { grid-template-columns: 1fr !important; }
+      .p-6 { padding: 12px !important; }
+      .p-8 { padding: 16px !important; }
+      .text-3xl { font-size: 1.25rem !important; }
+      .text-2xl { font-size: 1.1rem !important; }
     }
   </style>
 </head>
@@ -236,6 +258,79 @@
       );
     }
 
+    // ===== HISTORIAL PAGE (with delete) =====
+    function HistorialPage(props) {
+      var h = React.createElement;
+      var user = props.user;
+      var _s = React.useState;
+      var _data = _s([]), data = _data[0], setData = _data[1];
+      var _loading = _s(true), loading = _loading[0], setLoading = _loading[1];
+      var _sel = _s({}), sel = _sel[0], setSel = _sel[1];
+      var _deleting = _s(false), deleting = _deleting[0], setDeleting = _deleting[1];
+
+      var loadData = function() {
+        if (!user?.id) { setLoading(false); return; }
+        window.sb.from('simulation_history').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(50)
+          .then(function (res) { setData(res.data || []); setLoading(false); });
+      };
+      React.useEffect(loadData, [user]);
+
+      var toggleSel = function(id) { var n = Object.assign({}, sel); n[id] ? delete n[id] : n[id] = true; setSel(n); };
+      var toggleAll = function() { var n = {}; if (Object.keys(sel).length < data.length) { data.forEach(function(d) { n[d.id] = true; }); } setSel(n); };
+      var selCount = Object.keys(sel).length;
+
+      var handleDelete = function(ids) {
+        if (!confirm('¿Eliminar ' + ids.length + ' simulación(es)? Esta acción no se puede deshacer.')) return;
+        setDeleting(true);
+        window.sb.from('simulation_history').delete().in('id', ids)
+          .then(function() { setSel({}); setDeleting(false); loadData(); });
+      };
+
+      return h('div', { className: 'flex-1 overflow-y-auto bg-[#F7F9FC] p-6' },
+        h('div', { className: 'flex items-center justify-between mb-4' },
+          h('div', null,
+            h('h1', { className: 'text-2xl font-bold text-slate-900 mb-1' }, 'Historial de Simulaciones'),
+            h('p', { className: 'text-slate-500 text-sm' }, data.length + ' simulaciones encontradas')
+          ),
+          selCount > 0 && h('button', {
+            onClick: function() { handleDelete(Object.keys(sel)); },
+            disabled: deleting,
+            className: 'bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-600 transition-colors flex items-center gap-2'
+          }, deleting ? 'Eliminando...' : 'Eliminar (' + selCount + ')')
+        ),
+        data.length > 0 && h('button', { onClick: toggleAll, className: 'text-xs text-[#3B82F6] font-semibold mb-3 hover:underline' }, selCount === data.length ? 'Deseleccionar todo' : 'Seleccionar todo'),
+        loading ? h('div', { className: 'text-center py-12 text-slate-400' }, 'Cargando...') :
+          data.length === 0 ? h('div', { className: 'text-center py-12' },
+            h('div', { className: 'text-5xl mb-4' }, '📊'),
+            h('p', { className: 'text-slate-500 font-medium' }, 'Aún no has realizado simulaciones.'),
+            h('p', { className: 'text-slate-400 text-sm mt-1' }, 'Tus resultados aparecerán aquí una vez ejecutes tu primera simulación.')
+          ) :
+            h('div', { className: 'space-y-2' },
+              data.map(function (item) {
+                var isMulti = item.simulation_type === 'multi';
+                var d = new Date(item.created_at);
+                var dateStr = d.toLocaleDateString('es-CO') + ' ' + d.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+                var checked = !!sel[item.id];
+                return h('div', { key: item.id, className: 'bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md transition-shadow flex items-center gap-3 ' + (checked ? 'ring-2 ring-blue-200' : '') },
+                  h('input', { type: 'checkbox', checked: checked, onChange: function() { toggleSel(item.id); }, className: 'w-4 h-4 accent-blue-500 cursor-pointer flex-shrink-0' }),
+                  h('div', { className: 'w-9 h-9 rounded-lg flex items-center justify-center text-white font-bold text-xs flex-shrink-0 ' + (isMulti ? 'bg-[#6D28D9]' : 'bg-[#3B82F6]') }, isMulti ? 'ME' : 'EU'),
+                  h('div', { className: 'flex-1 min-w-0' },
+                    h('h3', { className: 'font-bold text-slate-900 text-sm truncate' }, item.title),
+                    h('div', { className: 'flex items-center gap-2 mt-0.5 flex-wrap' },
+                      h('span', { className: 'text-[10px] text-slate-400' }, dateStr),
+                      h('span', { className: 'text-[10px] text-slate-500' }, (item.metals_used || []).join(', ')),
+                      h('span', { className: 'text-[10px] text-slate-500' }, (item.area_m2 || 0) + ' m²')
+                    )
+                  ),
+                  h('button', { onClick: function() { handleDelete([item.id]); }, title: 'Eliminar', className: 'text-slate-300 hover:text-red-500 transition-colors flex-shrink-0 p-1' },
+                    h('svg', { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2 }, h('path', { d: 'M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14' }))
+                  )
+                );
+              })
+            )
+      );
+    }
+
     // ===== MAIN APP =====
     function App() {
       var h = React.createElement;
@@ -243,15 +338,21 @@
       var _user = _s(null), user = _user[0], setUser = _user[1];
       var _page = _s('home'), currentPage = _page[0], setCurrentPage = _page[1];
       var _pre = _s(null), preloadedParams = _pre[0], setPreloadedParams = _pre[1];
-
-      // Preserve state across tabs
       var _singleState = _s(null), singleState = _singleState[0], setSingleState = _singleState[1];
       var _multiState = _s(null), multiState = _multiState[0], setMultiState = _multiState[1];
 
+      // Dark mode (persisted)
+      var _dark = _s(localStorage.getItem('ht-dark') === '1'), darkMode = _dark[0], setDarkMode = _dark[1];
+      var toggleDark = function() { var nv = !darkMode; setDarkMode(nv); localStorage.setItem('ht-dark', nv ? '1' : '0'); };
+      React.useEffect(function() { document.documentElement.classList.toggle('dark', darkMode); }, [darkMode]);
+
+      // Mobile sidebar
+      var _mob = _s(false), mobSidebar = _mob[0], setMobSidebar = _mob[1];
+
       var handleLogin = function (userData) { setUser(userData); };
-      var handleLogout = function () { setUser(null); setCurrentPage('home'); };
+      var handleLogout = function () { window.sb.auth.signOut(); setUser(null); setCurrentPage('home'); };
       var handleRunScenario = function (params) { setPreloadedParams(params); setCurrentPage('single'); };
-      var handleNavigate = function (page) { if (page !== 'single') setPreloadedParams(null); setCurrentPage(page); };
+      var handleNavigate = function (page) { if (page !== 'single') setPreloadedParams(null); setCurrentPage(page); setMobSidebar(false); };
       var handleUpdateUser = function (updates) { setUser(Object.assign({}, user, updates)); };
 
       // Listen for Supabase auth state changes (Google OAuth redirect, etc.)
@@ -259,14 +360,12 @@
         var sub = window.sb.auth.onAuthStateChange(function(event, session) {
           if (event === 'SIGNED_IN' && session && session.user && !user) {
             var au = session.user;
-            // Fetch or create profile for this auth user
             window.sb.from('profiles').select('*').eq('email', au.email).single()
               .then(function(pRes) {
                 if (pRes.data) {
                   var u = pRes.data;
                   setUser({ id: u.id, name: u.full_name, email: u.email, role: u.role, phone: u.phone, location: u.location, accountLevel: u.account_level, memberSince: u.member_since ? new Date(u.member_since).toLocaleDateString('es-CO', { month: 'long', year: 'numeric' }) : '', initials: (u.full_name || 'U').split(' ').map(function(w){return w[0];}).join('').substring(0,2).toUpperCase() });
                 } else {
-                  // Create profile for Google user
                   var gName = au.user_metadata && au.user_metadata.full_name ? au.user_metadata.full_name : au.email.split('@')[0];
                   window.sb.from('profiles').insert({ email: au.email, full_name: gName, role: 'INVESTIGADOR', account_level: 'Nivel Básico' }).select().single()
                     .then(function(iRes) {
@@ -280,18 +379,10 @@
         return function() { sub.data && sub.data.subscription && sub.data.subscription.unsubscribe(); };
       }, []);
 
-      // Save simulation to Supabase
       window.saveSimulation = function (type, title, config, results, metalsUsed, areaM2) {
         if (!user?.id) return Promise.resolve(null);
         return window.sb.from('simulation_history').insert({
-          user_id: user.id,
-          simulation_type: type,
-          title: title,
-          config: config,
-          results: results,
-          metals_used: metalsUsed,
-          area_m2: areaM2,
-          status: 'Completado'
+          user_id: user.id, simulation_type: type, title: title, config: config, results: results, metals_used: metalsUsed, area_m2: areaM2, status: 'Completado'
         }).select().then(function (res) { return res; });
       };
 
@@ -300,7 +391,14 @@
       }
 
       return h('div', { className: 'flex h-screen bg-[#F7F9FC]' },
-        h(window.Sidebar, { currentPage: currentPage, onNavigate: handleNavigate, user: user, onLogout: handleLogout }),
+        // Mobile hamburger
+        h('button', { className: 'mobile-hamburger', onClick: function() { setMobSidebar(!mobSidebar); } }, '☰'),
+        // Mobile overlay
+        h('div', { className: 'sidebar-overlay' + (mobSidebar ? ' active' : ''), onClick: function() { setMobSidebar(false); } }),
+        // Sidebar
+        h('div', { className: 'sidebar-mobile' + (mobSidebar ? ' open' : '') },
+          h(window.Sidebar, { currentPage: currentPage, onNavigate: handleNavigate, user: user, onLogout: handleLogout, darkMode: darkMode, toggleDark: toggleDark })
+        ),
         currentPage === 'home' && h(window.HomePage, { onNavigate: handleNavigate, onRunScenario: handleRunScenario, user: user }),
         currentPage === 'single' && h(window.SingleSimulation, { preloadedParams: preloadedParams, savedState: singleState, onSaveState: setSingleState }),
         currentPage === 'multi' && h(window.MultiSimulation, { savedState: multiState, onSaveState: setMultiState }),

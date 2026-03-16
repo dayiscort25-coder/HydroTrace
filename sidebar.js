@@ -1,5 +1,5 @@
-// Sidebar Component - fixed alignment, Perfil nav, no Cambiar foto
-function Sidebar({ currentPage, onNavigate, user, onLogout }) {
+// Sidebar Component - dark mode toggle, mobile-friendly
+function Sidebar({ currentPage, onNavigate, user, onLogout, darkMode, toggleDark }) {
   var h = React.createElement;
   var _s = React.useState(false), userMenuOpen = _s[0], setUserMenuOpen = _s[1];
 
@@ -38,6 +38,16 @@ function Sidebar({ currentPage, onNavigate, user, onLogout }) {
           h('span', { className: 'truncate text-left' }, item.label)
         );
       })
+    ),
+    // Dark Mode Toggle
+    h('div', { className: 'px-4 py-2' },
+      h('button', {
+        onClick: toggleDark,
+        className: 'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-all'
+      },
+        h('span', { className: 'text-lg flex-shrink-0', style: { width: 18, textAlign: 'center' } }, darkMode ? '☀️' : '🌙'),
+        h('span', { className: 'truncate text-left' }, darkMode ? 'Modo Claro' : 'Modo Oscuro')
+      )
     ),
     // User Footer with dropdown
     h('div', { className: 'p-4 border-t border-slate-200 relative' },
