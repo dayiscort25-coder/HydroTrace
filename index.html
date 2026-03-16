@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HydroTrace - Escorrentía Urbana y Metales Pesados</title>
+  <meta name="description"
+    content="HydroTrace: Análisis de transporte de contaminantes y dinámica hidráulica en entornos urbanos." />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet" />
+  <!-- React -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <!-- Recharts dependencies -->
+  <script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
+  <script src="https://unpkg.com/recharts@2.5.0/umd/Recharts.js"></script>
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- XLSX for Excel -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <style>
+    * {
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-fadeIn {
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root"></div>
+
+  <!-- App Scripts -->
+  <script src="engine.js"></script>
+  <script src="login.js"></script>
+  <script src="sidebar.js"></script>
+  <script src="home.js"></script>
+  <script src="single.js"></script>
+  <script src="multi.js"></script>
+
+  <script>
+    // ===== SUPABASE CLIENT =====
+    var SUPABASE_URL = 'https://hktallunxbkmxpaqvduf.supabase.co';
+    var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhrdGFsbHVueGJrbXhwYXF2ZHVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwOTcxNTUsImV4cCI6MjA4ODY3MzE1NX0.lJHId-SIc_pkWKoyMUsgj4NrtZ-opaQAKKJm2Y__9-4';
+    var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    window.sb = supabase;
+
+    // ===== PROFILE PAGE =====
+    function ProfilePage(props) {
+      var h = React.createElement;
+      var user = props.user;
+      var onUpdateUser = props.onUpdateUser;
+      var _s = React.useState, saving = _s(false), setSaving = saving[1]; saving = saving[0];
+      var _msg = _s(''), msg = _msg[0], setMsg = _msg[1];
+      var _name = _s(user?.name || ''), name = _name[0], setName = _name[1];
+      var _email = _s(user?.email || ''), email = _email[0], setEmail = _email[1];
+      var _phone = _s(user?.phone || ''), phone = _phone[0], setPhone = _phone[1];
+      var _loc = _s(user?.location || ''), loc = _loc[0], setLoc = _loc[1];
+
+      React.useEffect(function () {
+        if (user) { setName(user.name || ''); setEmail(user.email || ''); setPhone(user.phone || ''); setLoc(user.location || ''); }
+      }, [user]);
+
+      var handleSave = function () {
+        setSaving(true); setMsg('');
+        window.sb.from('profiles').update({ full_name: name, phone: phone, location: loc }).eq('id', user.id)
+          .then(function (res) {
+            setSaving(false);
+            if (res.error) { setMsg('Error: ' + res.error.message); }
+            else { setMsg('Perfil actualizado'); if (onUpdateUser) onUpdateUser({ name: name, phone: phone, location: loc }); }
+          });
+      };
+
+      return h('div', { className: 'flex-1 overflow-y-auto bg-[#F7F9FC]' },
+        h('div', { className: 'max-w-3xl mx-auto py-10 px-6' },
+          h('h1', { className: 'text-3xl font-black text-slate-900 mb-1' }, 'Perfil de Usuario'),
+          h('p', { className: 'text-slate-500 mb-8' }, 'Gestiona tu identidad digital y preferencias de seguridad en HydroTrace.'),
+          h('div', { className: 'bg-white rounded-xl border border-slate-200 overflow-hidden' },
+            h('div', { className: 'p-8' },
+              // Avatar section
+              h('div', { className: 'flex items-center gap-6 pb-8 border-b border-slate-100' },
+                h('div', { className: 'w-24 h-24 rounded-full bg-[#6D28D9] flex items-center justify-center text-white text-2xl font-bold ring-4 ring-purple-100' }, (name || 'U').split(' ').map(function (w) { return w[0]; }).join('').substring(0, 2).toUpperCase()),
+                h('div', { className: 'flex-1' },
+                  h('h2', { className: 'text-2xl font-bold text-slate-900' }, name || 'Usuario'),
+                  h('p', { className: 'text-slate-500 text-sm' }, user?.role || 'Investigador'),
+                  h('p', { className: 'text-slate-400 text-xs mt-1' }, 'Miembro desde ' + (user?.memberSince || 'Octubre 2023'))
+                ),
+                h('div', { className: 'p-4 bg-purple-50 border border-purple-200 rounded-xl hidden lg:block' },
+                  h('div', { className: 'flex items-center gap-3' },
+                    h('svg', { width: 28, height: 28, viewBox: '0 0 24 24', fill: 'none', stroke: '#6D28D9', strokeWidth: 2 }, h('path', { d: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' })),
+                    h('div', null,
+                      h('p', { className: 'text-[10px] text-[#6D28D9] font-bold uppercase tracking-wider' }, 'Estado de Cuenta'),
+                      h('p', { className: 'font-bold text-slate-900' }, user?.accountLevel || 'Nivel Avanzado')
+                    )
+                  )
+                )
+              ),
+              // Form
+              h('div', { className: 'grid grid-cols-2 gap-6 py-8' },
+                h('div', null,
+                  h('label', { className: 'block text-sm font-medium text-slate-700 mb-1' }, 'Nombre Completo'),
+                  h('input', { type: 'text', value: name, onChange: function (e) { setName(e.target.value); }, className: 'w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-purple-200 focus:border-purple-400 focus:outline-none' })
+                ),
+                h('div', null,
+                  h('label', { className: 'block text-sm font-medium text-slate-700 mb-1' }, 'Correo Electrónico'),
+                  h('div', { className: 'relative' },
+                    h('input', { type: 'email', value: email, readOnly: true, className: 'w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-500' }),
+                    h('svg', { width: 18, height: 18, viewBox: '0 0 24 24', fill: 'none', stroke: '#10b981', strokeWidth: 2, className: 'absolute right-3 top-1/2 -translate-y-1/2' }, h('path', { d: 'M22 11.08V12a10 10 0 11-5.93-9.14M22 4L12 14.01l-3-3' }))
+                  )
+                ),
+                h('div', null,
+                  h('label', { className: 'block text-sm font-medium text-slate-700 mb-1' }, 'Teléfono'),
+                  h('input', { type: 'tel', value: phone, onChange: function (e) { setPhone(e.target.value); }, placeholder: '+57 300 000 0000', className: 'w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-purple-200 focus:outline-none' })
+                ),
+                h('div', null,
+                  h('label', { className: 'block text-sm font-medium text-slate-700 mb-1' }, 'Ubicación'),
+                  h('select', { value: loc, onChange: function (e) { setLoc(e.target.value); }, className: 'w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-purple-200 focus:outline-none' },
+                    ['Bogotá, Colombia', 'Medellín, Colombia', 'Cali, Colombia', 'Madrid, España', 'Barcelona, España', 'Ciudad de México, México', 'Otro'].map(function (l) { return h('option', { key: l, value: l }, l); })
+                  )
+                )
+              ),
+              // Security
+              h('div', { className: 'p-5 bg-slate-50 rounded-xl border border-slate-100 mb-8' },
+                h('div', { className: 'flex items-start gap-3' },
+                  h('svg', { width: 22, height: 22, viewBox: '0 0 24 24', fill: 'none', stroke: '#6D28D9', strokeWidth: 2, className: 'mt-0.5 flex-shrink-0' }, h('path', { d: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z' })),
+                  h('div', null,
+                    h('h3', { className: 'font-bold text-slate-900' }, 'Seguridad de la cuenta'),
+                    h('p', { className: 'text-sm text-slate-500 mb-2' }, 'Te recomendamos cambiar tu contraseña periódicamente.'),
+                    h('button', { className: 'text-[#6D28D9] font-bold text-sm hover:underline' }, 'Cambiar Contraseña')
+                  )
+                )
+              ),
+              // Actions
+              h('div', { className: 'flex items-center justify-between pt-4' },
+                h('button', { onClick: handleSave, disabled: saving, className: 'px-8 py-3 bg-[#6D28D9] hover:bg-[#5B21B6] text-white rounded-lg font-bold shadow-lg shadow-purple-200 transition-all disabled:opacity-50' }, saving ? 'Guardando...' : 'Guardar Cambios'),
+                h('div', { className: 'flex items-center gap-3' },
+                  msg && h('span', { className: 'text-sm font-semibold ' + (msg.startsWith('Error') ? 'text-red-600' : 'text-green-600') }, msg),
+                  h('button', { onClick: function () { setName(user?.name || ''); setPhone(user?.phone || ''); setLoc(user?.location || ''); setMsg(''); }, className: 'px-6 py-3 border border-slate-200 text-slate-600 rounded-lg font-medium hover:bg-slate-50' }, 'Descartar')
+                )
+              )
+            )
+          )
+        )
+      );
+    }
+
+    // ===== HISTORIAL PAGE (connected to Supabase) =====
+    function HistorialPage(props) {
+      var h = React.createElement;
+      var user = props.user;
+      var _s = React.useState;
+      var _data = _s([]), data = _data[0], setData = _data[1];
+      var _loading = _s(true), loading = _loading[0], setLoading = _loading[1];
+
+      React.useEffect(function () {
+        if (!user?.id) { setLoading(false); return; }
+        window.sb.from('simulation_history').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(50)
+          .then(function (res) { setData(res.data || []); setLoading(false); });
+      }, [user]);
+
+      return h('div', { className: 'flex-1 overflow-y-auto bg-[#F7F9FC] p-6' },
+        h('h1', { className: 'text-2xl font-bold text-slate-900 mb-2' }, 'Historial de Simulaciones'),
+        h('p', { className: 'text-slate-500 mb-6' }, 'Últimas simulaciones realizadas en la plataforma.'),
+        loading ? h('div', { className: 'text-center py-12 text-slate-400' }, 'Cargando...') :
+          data.length === 0 ? h('div', { className: 'text-center py-12' },
+            h('div', { className: 'text-5xl mb-4' }, '📊'),
+            h('p', { className: 'text-slate-500 font-medium' }, 'Aún no has realizado simulaciones.'),
+            h('p', { className: 'text-slate-400 text-sm mt-1' }, 'Tus resultados aparecerán aquí una vez ejecutes tu primera simulación.')
+          ) :
+            h('div', { className: 'space-y-3' },
+              data.map(function (item) {
+                var isMulti = item.simulation_type === 'multi';
+                var d = new Date(item.created_at);
+                var dateStr = d.toLocaleDateString('es-CO') + ' ' + d.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+                return h('div', { key: item.id, className: 'bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md transition-shadow flex items-center justify-between' },
+                  h('div', { className: 'flex items-center gap-4' },
+                    h('div', { className: 'w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-sm ' + (isMulti ? 'bg-[#6D28D9]' : 'bg-[#3B82F6]') }, isMulti ? 'ME' : 'EU'),
+                    h('div', null,
+                      h('h3', { className: 'font-bold text-slate-900 text-sm' }, item.title),
+                      h('div', { className: 'flex items-center gap-3 mt-1' },
+                        h('span', { className: 'text-[10px] text-slate-400' }, dateStr),
+                        h('span', { className: 'text-[10px] text-slate-400' }, '|'),
+                        h('span', { className: 'text-[10px] text-slate-500' }, 'Metales: ' + (item.metals_used || []).join(', ')),
+                        h('span', { className: 'text-[10px] text-slate-400' }, '|'),
+                        h('span', { className: 'text-[10px] text-slate-500' }, (item.area_m2 || 0) + ' m²')
+                      )
+                    )
+                  ),
+                  h('span', { className: 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700' }, item.status || 'Completado')
+                );
+              })
+            )
+      );
+    }
+
+    // ===== MAIN APP =====
+    function App() {
+      var h = React.createElement;
+      var _s = React.useState;
+      var _user = _s(null), user = _user[0], setUser = _user[1];
+      var _page = _s('home'), currentPage = _page[0], setCurrentPage = _page[1];
+      var _pre = _s(null), preloadedParams = _pre[0], setPreloadedParams = _pre[1];
+
+      // Preserve state across tabs
+      var _singleState = _s(null), singleState = _singleState[0], setSingleState = _singleState[1];
+      var _multiState = _s(null), multiState = _multiState[0], setMultiState = _multiState[1];
+
+      var handleLogin = function (userData) { setUser(userData); };
+      var handleLogout = function () { setUser(null); setCurrentPage('home'); };
+      var handleRunScenario = function (params) { setPreloadedParams(params); setCurrentPage('single'); };
+      var handleNavigate = function (page) { if (page !== 'single') setPreloadedParams(null); setCurrentPage(page); };
+      var handleUpdateUser = function (updates) { setUser(Object.assign({}, user, updates)); };
+
+      // Listen for Supabase auth state changes (Google OAuth redirect, etc.)
+      React.useEffect(function() {
+        var sub = window.sb.auth.onAuthStateChange(function(event, session) {
+          if (event === 'SIGNED_IN' && session && session.user && !user) {
+            var au = session.user;
+            // Fetch or create profile for this auth user
+            window.sb.from('profiles').select('*').eq('email', au.email).single()
+              .then(function(pRes) {
+                if (pRes.data) {
+                  var u = pRes.data;
+                  setUser({ id: u.id, name: u.full_name, email: u.email, role: u.role, phone: u.phone, location: u.location, accountLevel: u.account_level, memberSince: u.member_since ? new Date(u.member_since).toLocaleDateString('es-CO', { month: 'long', year: 'numeric' }) : '', initials: (u.full_name || 'U').split(' ').map(function(w){return w[0];}).join('').substring(0,2).toUpperCase() });
+                } else {
+                  // Create profile for Google user
+                  var gName = au.user_metadata && au.user_metadata.full_name ? au.user_metadata.full_name : au.email.split('@')[0];
+                  window.sb.from('profiles').insert({ email: au.email, full_name: gName, role: 'INVESTIGADOR', account_level: 'Nivel Básico' }).select().single()
+                    .then(function(iRes) {
+                      var nu = iRes.data || { id: au.id, full_name: gName, email: au.email, role: 'INVESTIGADOR' };
+                      setUser({ id: nu.id, name: nu.full_name, email: nu.email, role: nu.role, phone: '', location: '', accountLevel: 'Nivel Básico', memberSince: new Date().toLocaleDateString('es-CO', { month: 'long', year: 'numeric' }), initials: (gName || 'U').split(' ').map(function(w){return w[0];}).join('').substring(0,2).toUpperCase() });
+                    });
+                }
+              });
+          }
+        });
+        return function() { sub.data && sub.data.subscription && sub.data.subscription.unsubscribe(); };
+      }, []);
+
+      // Save simulation to Supabase
+      window.saveSimulation = function (type, title, config, results, metalsUsed, areaM2) {
+        if (!user?.id) return Promise.resolve(null);
+        return window.sb.from('simulation_history').insert({
+          user_id: user.id,
+          simulation_type: type,
+          title: title,
+          config: config,
+          results: results,
+          metals_used: metalsUsed,
+          area_m2: areaM2,
+          status: 'Completado'
+        }).select().then(function (res) { return res; });
+      };
+
+      if (!user) {
+        return h(window.LoginPage, { onLogin: handleLogin });
+      }
+
+      return h('div', { className: 'flex h-screen bg-[#F7F9FC]' },
+        h(window.Sidebar, { currentPage: currentPage, onNavigate: handleNavigate, user: user, onLogout: handleLogout }),
+        currentPage === 'home' && h(window.HomePage, { onNavigate: handleNavigate, onRunScenario: handleRunScenario, user: user }),
+        currentPage === 'single' && h(window.SingleSimulation, { preloadedParams: preloadedParams, savedState: singleState, onSaveState: setSingleState }),
+        currentPage === 'multi' && h(window.MultiSimulation, { savedState: multiState, onSaveState: setMultiState }),
+        currentPage === 'historial' && h(HistorialPage, { user: user }),
+        currentPage === 'perfil' && h(ProfilePage, { user: user, onUpdateUser: handleUpdateUser })
+      );
+    }
+
+    // Render
+    var root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(React.createElement(App));
+  </script>
+</body>
+
+</html>
