@@ -104,9 +104,8 @@ function LoginPage({ onLogin }) {
     setRecMsg('');
     if (!recEmail) { setRecMsg('Ingresa tu correo electrónico.'); return; }
     setLoading(true);
-    window.sb.auth.resetPasswordForEmail(recEmail, {
-      redirectTo: window.location.origin
-    }).then(function(res) {
+    window.sb.auth.resetPasswordForEmail(recEmail)
+    .then(function(res) {
       setLoading(false);
       if (res.error) {
         setRecMsg('Error al enviar: ' + res.error.message);
@@ -116,12 +115,11 @@ function LoginPage({ onLogin }) {
     });
   };
 
-  // Handle Google login
+  // Handle Google login — implicit flow (no redirectTo needed)
   var handleGoogleLogin = function () {
     setError(''); setRegMsg('');
     window.sb.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: window.location.origin }
+      provider: 'google'
     }).then(function (res) {
       if (res.error) { setError('Error con Google: ' + res.error.message); }
     });
