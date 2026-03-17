@@ -255,16 +255,28 @@ function MultiSimulation({ savedState, onSaveState }) {
     ),
 
     h('div', { className: 'p-6 space-y-6' },
-      // Simulation Title (FIRST)
-      h('div', { className: 'bg-white rounded-xl border border-slate-200 p-4 flex items-center gap-4' },
-        h('div', { className: 'w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center text-lg flex-shrink-0' }, '📝'),
-        h('div', { className: 'flex-1' },
-          h('label', { className: 'block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1' }, 'Título de la simulación'),
-          h('input', {
-            type: 'text', value: simName, onChange: function(e) { setSimName(e.target.value); },
-            placeholder: 'Ej: Campaña Zona Norte — Multieventos Diciembre',
-            className: 'w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-purple-300 focus:outline-none'
-          })
+      // Simulation Title + Address
+      h('div', { className: 'bg-white rounded-xl border border-slate-200 p-4 space-y-3' },
+        h('div', { className: 'flex items-center gap-4' },
+          h('div', { className: 'w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center text-lg flex-shrink-0' }, '📝'),
+          h('div', { className: 'flex-1' },
+            h('label', { className: 'block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1' }, 'Título de la simulación'),
+            h('input', {
+              type: 'text', value: simName, onChange: function(e) { setSimName(e.target.value); },
+              placeholder: 'Ej: Campaña Zona Norte — Multieventos Diciembre',
+              className: 'w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-purple-300 focus:outline-none'
+            })
+          )
+        ),
+        h('div', { className: 'flex items-center gap-4' },
+          h('div', { className: 'w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center text-lg flex-shrink-0' }, '📍'),
+          h('div', { className: 'flex-1' },
+            h('label', { className: 'block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1' }, 'Dirección del evento'),
+            h('input', {
+              type: 'text', placeholder: 'Ej: Autopista Norte Km 5, Bogotá',
+              className: 'w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-purple-300 focus:outline-none'
+            })
+          )
         )
       ),
       // Geometry
@@ -322,8 +334,7 @@ function MultiSimulation({ savedState, onSaveState }) {
       // Metals Table
       h('div', { className: 'bg-white rounded-xl border border-slate-200 p-5' },
         h('div', { className: 'flex items-center justify-between mb-4' },
-          h('h3', { className: 'font-bold text-slate-900' }, 'Metales a simular (Cinética de lavado)'),
-          h('button', { className: 'border border-slate-300 px-4 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50' }, 'Subir Excel')
+          h('h3', { className: 'font-bold text-slate-900' }, 'Metales a simular (Cinética de lavado)')
         ),
         h('div', { className: 'overflow-x-auto' },
           h('table', { className: 'w-full text-sm' },
@@ -499,17 +510,20 @@ function MultiSimulation({ savedState, onSaveState }) {
 
         // METHODOLOGY
         h('div', { className: 'bg-white rounded-xl border border-slate-200 p-5' },
-          h('h3', { className: 'text-lg font-bold text-slate-900 mb-4' }, 'Metodología de Cálculo'),
+          h('h3', { className: 'text-lg font-bold text-slate-900 mb-2' }, 'Metodología de Cálculo'),
+          h('p', { className: 'text-sm text-slate-500 mb-4 leading-relaxed', style: { textAlign: 'justify' } }, 'El análisis multieventos evalúa la acumulación progresiva de contaminantes a lo largo de múltiples eventos de lluvia, considerando la masa remanente como punto de partida para cada nuevo ciclo.'),
           h('div', { className: 'space-y-4 text-sm text-slate-700 leading-relaxed' },
             h('div', { className: 'bg-purple-50 rounded-lg p-4 border-l-4 border-[#6D28D9]' },
-              h('h4', { className: 'font-bold text-[#6D28D9] mb-2' }, 'Build-up Multievento (Acumulación continua)'),
+              h('h4', { className: 'font-bold text-[#6D28D9] mb-1' }, 'Build-up Multievento (Acumulación continua)'),
+              h('p', { className: 'text-xs text-slate-500 mb-2 italic' }, 'Objetivo: Simular cómo la masa de contaminantes se acumula entre eventos sucesivos, utilizando la masa remanente del evento anterior como condición inicial.'),
               h('div', { className: 'bg-white rounded p-3 font-mono text-xs border border-purple-200 space-y-1' },
                 h('div', null, 'B(t+dt) = B(t) + (Bmax - B(t)) × (1 - e^(-kb × dt))'),
                 h('div', { className: 'text-slate-500' }, 'La masa remanente después de cada evento se utiliza como punto inicial para la siguiente acumulación.')
               )
             ),
             h('div', { className: 'bg-orange-50 rounded-lg p-4 border-l-4 border-orange-500' },
-              h('h4', { className: 'font-bold text-orange-700 mb-2' }, 'Wash-off Instantáneo por Evento'),
+              h('h4', { className: 'font-bold text-orange-700 mb-1' }, 'Wash-off Instantáneo por Evento'),
+              h('p', { className: 'text-xs text-slate-500 mb-2 italic' }, 'Objetivo: Calcular la cantidad de masa removida durante cada evento en función de la intensidad de lluvia y los coeficientes de lavado.'),
               h('div', { className: 'bg-white rounded p-3 font-mono text-xs border border-orange-200 space-y-1' },
                 h('div', null, 'W = B × (1 - e^(-kw × I^n))'),
                 h('div', null, 'Carga = (TLW / 100) × W × Área'),
@@ -517,7 +531,8 @@ function MultiSimulation({ savedState, onSaveState }) {
               )
             ),
             h('div', { className: 'bg-blue-50 rounded-lg p-4 border-l-4 border-[#3B82F6]' },
-              h('h4', { className: 'font-bold text-[#2471A3] mb-2' }, 'Análisis TLW'),
+              h('h4', { className: 'font-bold text-[#2471A3] mb-1' }, 'Análisis TLW'),
+              h('p', { className: 'text-xs text-slate-500 mb-2 italic' }, 'Objetivo: Descomponer la carga total de lavado en sus tres fracciones granulométricas para identificar el mecanismo dominante de transporte.'),
               h('div', { className: 'bg-white rounded p-3 font-mono text-xs border border-blue-200 space-y-1' },
                 h('div', null, 'T₁ = (LW × ML) / 100  |  T₂ = LE × (1 - LW/100) × (ML/100)  |  T₃ = Ler × (1 - ML/100)'),
                 h('div', { className: 'font-bold' }, 'TLW = T₁ + T₂ + T₃')
@@ -543,7 +558,40 @@ function MultiSimulation({ savedState, onSaveState }) {
       ),
 
       // Footer
-      h('div', { className: 'text-center text-xs text-slate-400 py-6 border-t border-slate-200 mt-6' }, '© 2024 HYDROTRACE PLATFORM - V3.4')
+      // Export button
+      results && h('div', { className: 'bg-white rounded-xl border border-slate-200 p-5 text-center' },
+        h('h3', { className: 'font-bold text-slate-900 mb-3' }, 'Exportar Resultados'),
+        h('button', {
+          onClick: function() {
+            try {
+              var doc = new window.jspdf.jsPDF();
+              doc.setFontSize(18); doc.setTextColor(30, 58, 95); doc.text('HydroTrace — Reporte Multieventos', 14, 20);
+              doc.setFontSize(10); doc.setTextColor(100); doc.text('Fecha: ' + new Date().toLocaleDateString('es-CO') + '  |  Tipo: Multieventos', 14, 28);
+              doc.setDrawColor(109, 40, 217); doc.line(14, 31, 196, 31);
+              var y = 38; doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('Parámetros', 14, y); y += 7;
+              doc.setFontSize(9); doc.setTextColor(60);
+              doc.text('Título: ' + (simName || 'Sin nombre'), 14, y); y += 5;
+              doc.text('Área: ' + area + ' m²  |  Material: ' + material + '  |  Eventos: ' + (results.nEvents || '-'), 14, y); y += 5;
+              doc.text('Metales: ' + results.ml.join(', '), 14, y); y += 10;
+              doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('Resultados Acumulados', 14, y); y += 7;
+              doc.setFontSize(9); doc.setTextColor(60);
+              if (results.cum) {
+                results.cum.forEach(function(ev, idx) {
+                  doc.text('Evento ' + (idx + 1) + ': Vol=' + (ev.vol || 0).toFixed(2) + ' m³', 14, y); y += 5;
+                  if (y > 270) { doc.addPage(); y = 20; }
+                });
+              }
+              y += 5; doc.setFontSize(8); doc.setTextColor(150); doc.text('© 2026 HydroTrace Platform — Generado automáticamente', 14, y);
+              doc.save('HydroTrace_Multi_' + (simName || 'Reporte').replace(/\s+/g, '_') + '.pdf');
+            } catch(e) { alert('Error al generar PDF: ' + e.message); }
+          }, className: 'bg-[#6D28D9] text-white px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-[#5B21B6] transition-colors inline-flex items-center gap-2'
+        },
+          h('svg', { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2 }, h('path', { d: 'M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3' })),
+          'Descargar Reporte PDF'
+        )
+      ),
+
+      h('div', { className: 'text-center text-xs text-slate-400 py-6 border-t border-slate-200 mt-6' }, '© 2026 HYDROTRACE PLATFORM')
     )
   );
 }

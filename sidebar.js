@@ -1,7 +1,20 @@
-// Sidebar Component - dark mode in user dropdown, no emojis
+// Sidebar Component - dark mode in user dropdown, no emojis, click-outside close
 function Sidebar({ currentPage, onNavigate, user, onLogout, darkMode, toggleDark }) {
   var h = React.createElement;
   var _s = React.useState(false), userMenuOpen = _s[0], setUserMenuOpen = _s[1];
+  var userMenuRef = React.useRef(null);
+
+  // Close dropdown on outside click
+  React.useEffect(function() {
+    if (!userMenuOpen) return;
+    function handleClick(e) {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
+        setUserMenuOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return function() { document.removeEventListener('mousedown', handleClick); };
+  }, [userMenuOpen]);
 
   var menuItems = [
     { id: 'home', label: 'Home', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0h4' },
@@ -40,7 +53,7 @@ function Sidebar({ currentPage, onNavigate, user, onLogout, darkMode, toggleDark
       })
     ),
     // User Footer with dropdown (includes dark mode toggle)
-    h('div', { className: 'p-4 border-t border-slate-200 relative' },
+    h('div', { ref: userMenuRef, className: 'p-4 border-t border-slate-200 relative' },
       h('div', { className: 'flex items-center gap-3 cursor-pointer', onClick: function () { setUserMenuOpen(!userMenuOpen); } },
         h('div', { className: 'w-9 h-9 bg-[#3B82F6] rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0' }, user?.initials || 'JD'),
         h('div', { className: 'flex-1 min-w-0' },

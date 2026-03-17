@@ -183,16 +183,28 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
     ),
 
     h('div', { className: 'p-6 space-y-6' },
-      // Simulation Title (FIRST)
-      h('div', { className: 'bg-white rounded-xl border border-slate-200 p-4 flex items-center gap-4' },
-        h('div', { className: 'w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center text-lg flex-shrink-0' }, '📝'),
-        h('div', { className: 'flex-1' },
-          h('label', { className: 'block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1' }, 'Título de la simulación'),
-          h('input', {
-            type: 'text', value: simName, onChange: function(e) { setSimName(e.target.value); },
-            placeholder: 'Ej: Estudio Calle 26 — Campaña Octubre 2025',
-            className: 'w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-300 focus:outline-none'
-          })
+      // Simulation Title + Address
+      h('div', { className: 'bg-white rounded-xl border border-slate-200 p-4 space-y-3' },
+        h('div', { className: 'flex items-center gap-4' },
+          h('div', { className: 'w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center text-lg flex-shrink-0' }, '📝'),
+          h('div', { className: 'flex-1' },
+            h('label', { className: 'block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1' }, 'Título de la simulación'),
+            h('input', {
+              type: 'text', value: simName, onChange: function(e) { setSimName(e.target.value); },
+              placeholder: 'Ej: Estudio Calle 26 — Campaña Octubre 2025',
+              className: 'w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-300 focus:outline-none'
+            })
+          )
+        ),
+        h('div', { className: 'flex items-center gap-4' },
+          h('div', { className: 'w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center text-lg flex-shrink-0' }, '📍'),
+          h('div', { className: 'flex-1' },
+            h('label', { className: 'block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1' }, 'Dirección del evento'),
+            h('input', {
+              type: 'text', placeholder: 'Ej: Cra 7 con Calle 72, Bogotá',
+              className: 'w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-300 focus:outline-none'
+            })
+          )
         )
       ),
       // Config grid
@@ -221,7 +233,7 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
             h('button', { onClick: function () { setHydroMode('precip'); }, className: 'flex-1 py-2 rounded-lg text-sm font-semibold transition-colors ' + (hydroMode === 'precip' ? 'bg-[#3B82F6] text-white' : 'bg-slate-100 text-slate-600') }, 'Precipitación Total (mm)')
           ),
           h('div', { className: 'grid grid-cols-2 gap-3' },
-            hydroMode === 'intensity' ? numInput('Valor prec/int', intensityVal, setIntensityVal, '35.5') : numInput('Precipitación (mm)', precipVal, setPrecipVal, '30'),
+            hydroMode === 'intensity' ? numInput('Intensidad (mm/h)', intensityVal, setIntensityVal, '35.5') : numInput('Precipitación (mm)', precipVal, setPrecipVal, '30'),
             numInput('Duración (horas)', duration, setDuration, '1'),
             numInput('Pendiente (%)', slope, setSlope, '2.5'),
             numInput('Días secos anteced.', dryDays, setDryDays, '5'),
@@ -529,11 +541,13 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
 
         // METHODOLOGY
         h('div', { className: 'bg-white rounded-xl border border-slate-200 p-5' },
-          h('h3', { className: 'text-lg font-bold text-slate-900 mb-4' }, 'Metodología de Cálculo'),
+          h('h3', { className: 'text-lg font-bold text-slate-900 mb-2' }, 'Metodología de Cálculo'),
+          h('p', { className: 'text-sm text-slate-500 mb-4 leading-relaxed', style: { textAlign: 'justify' } }, 'A continuación se describe el proceso de cálculo paso a paso. Cada etapa tiene un objetivo específico dentro del análisis integral del transporte de metales pesados en escorrentía urbana.'),
           h('div', { className: 'space-y-4 text-sm text-slate-700 leading-relaxed' },
             // Step 1
             h('div', { className: 'bg-blue-50 rounded-lg p-4 border-l-4 border-[#3B82F6]' },
-              h('h4', { className: 'font-bold text-[#2471A3] mb-2' }, 'Etapa 1: Cálculo TLW — Total Load Washoff'),
+              h('h4', { className: 'font-bold text-[#2471A3] mb-1' }, 'Etapa 1: Cálculo TLW — Total Load Washoff'),
+              h('p', { className: 'text-xs text-slate-500 mb-2 italic' }, 'Objetivo: Determinar qué porcentaje de la carga contaminante depositada en la superficie puede ser movilizada por la escorrentía.'),
               h('p', { className: 'mb-2' }, 'Índice que representa el porcentaje total de carga contaminante que puede ser lavada por metro cuadrado. Se descompone en 3 fracciones:'),
               h('div', { className: 'bg-white rounded p-3 font-mono text-xs space-y-1 border border-blue-200' },
                 h('div', null, 'T₁ = (LW × ML) / 100  → Transporte RDS < 250 µm (partículas finas arrastradas mecánicamente)'),
@@ -544,7 +558,8 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
             ),
             // Step 2
             h('div', { className: 'bg-green-50 rounded-lg p-4 border-l-4 border-green-500' },
-              h('h4', { className: 'font-bold text-green-700 mb-2' }, 'Etapa 2: Hidrología — Respuesta de la cuenca'),
+              h('h4', { className: 'font-bold text-green-700 mb-1' }, 'Etapa 2: Hidrología — Respuesta de la cuenca'),
+              h('p', { className: 'text-xs text-slate-500 mb-2 italic' }, 'Objetivo: Calcular el caudal pico, el volumen total de escorrentía y el tiempo de concentración de la cuenca ante el evento de lluvia definido.'),
               h('div', { className: 'bg-white rounded p-3 font-mono text-xs space-y-1 border border-green-200' },
                 h('div', null, 'Caudal pico: Q = C × I × A / 3,600,000  (m³/s)'),
                 h('div', null, 'Volumen: V = C × (I/1000) × A × duración  (m³)'),
@@ -558,7 +573,8 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
             ),
             // Step 3
             h('div', { className: 'bg-yellow-50 rounded-lg p-4 border-l-4 border-yellow-500' },
-              h('h4', { className: 'font-bold text-yellow-700 mb-2' }, 'Etapa 3: Build-up — Acumulación en período seco'),
+              h('h4', { className: 'font-bold text-yellow-700 mb-1' }, 'Etapa 3: Build-up — Acumulación en período seco'),
+              h('p', { className: 'text-xs text-slate-500 mb-2 italic' }, 'Objetivo: Estimar la masa de contaminantes acumulada en la superficie durante el período seco previo al evento de lluvia.'),
               h('div', { className: 'bg-white rounded p-3 font-mono text-xs border border-yellow-200' },
                 h('div', null, 'B(t) = Bmax × (1 - e^(-kb × t))'),
                 h('div', { className: 'mt-1 text-slate-500' }, 'Bmax = masa máxima acumulable (mg/m²), kb = tasa de acumulación (1/día), t = días secos')
@@ -566,7 +582,8 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
             ),
             // Step 4
             h('div', { className: 'bg-orange-50 rounded-lg p-4 border-l-4 border-orange-500' },
-              h('h4', { className: 'font-bold text-orange-700 mb-2' }, 'Etapa 4: Wash-off — Lavado durante el evento'),
+              h('h4', { className: 'font-bold text-orange-700 mb-1' }, 'Etapa 4: Wash-off — Lavado durante el evento'),
+              h('p', { className: 'text-xs text-slate-500 mb-2 italic' }, 'Objetivo: Simular la cinética de remoción de contaminantes en función de la intensidad de lluvia a lo largo del evento.'),
               h('div', { className: 'bg-white rounded p-3 font-mono text-xs border border-orange-200 space-y-1' },
                 h('div', null, 'dW = B(t) × (1 - e^(-kw × I(t)^n × dt))'),
                 h('div', { className: 'text-slate-500' }, 'B(t) = masa remanente, kw = coef. lavado, I(t) = intensidad, n = exponente, dt = paso tiempo'),
@@ -575,7 +592,8 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
             ),
             // Step 5
             h('div', { className: 'bg-red-50 rounded-lg p-4 border-l-4 border-red-500' },
-              h('h4', { className: 'font-bold text-red-700 mb-2' }, 'Etapa 5: Impacto Ambiental'),
+              h('h4', { className: 'font-bold text-red-700 mb-1' }, 'Etapa 5: Impacto Ambiental'),
+              h('p', { className: 'text-xs text-slate-500 mb-2 italic' }, 'Objetivo: Calcular la carga total de contaminantes movilizados y su concentración media en el volumen de escorrentía generado.'),
               h('div', { className: 'bg-white rounded p-3 font-mono text-xs border border-red-200 space-y-1' },
                 h('div', null, 'Carga (mg) = (TLW / 100) × B₀ × Área'),
                 h('div', null, 'Concentración (mg/L) = Carga (mg) / Volumen (litros)')
@@ -619,7 +637,49 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
       ),
 
       // Footer
-      h('div', { className: 'text-center text-xs text-slate-400 py-6 border-t border-slate-200 mt-6' }, '© 2024 HYDROTRACE PLATFORM - V3.4')
+      // Export button
+      results && h('div', { className: 'bg-white rounded-xl border border-slate-200 p-5 text-center' },
+        h('h3', { className: 'font-bold text-slate-900 mb-3' }, 'Exportar Resultados'),
+        h('button', {
+          onClick: function() {
+            try {
+              var doc = new window.jspdf.jsPDF();
+              doc.setFontSize(18); doc.setTextColor(30, 58, 95); doc.text('HydroTrace — Reporte de Simulación', 14, 20);
+              doc.setFontSize(10); doc.setTextColor(100); doc.text('Fecha: ' + new Date().toLocaleDateString('es-CO') + '  |  Tipo: Evento Único', 14, 28);
+              doc.setDrawColor(59, 130, 246); doc.line(14, 31, 196, 31);
+              var y = 38; doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('Parámetros de Entrada', 14, y); y += 8;
+              doc.setFontSize(9); doc.setTextColor(60);
+              doc.text('Título: ' + (simName || 'Sin nombre'), 14, y); y += 5;
+              doc.text('Área: ' + area + ' m²  |  Material: ' + material + '  |  Coef. C: ' + coefC, 14, y); y += 5;
+              doc.text('Intensidad: ' + intensityVal + ' mm/h  |  Duración: ' + duration + ' h  |  Días secos: ' + dryDays, 14, y); y += 5;
+              doc.text('Pendiente: ' + slope + '%  |  Longitud: ' + length + ' m  |  Ancho: ' + width + ' m', 14, y); y += 10;
+              doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('Resultados Hidrológicos', 14, y); y += 7;
+              doc.setFontSize(9); doc.setTextColor(60);
+              doc.text('Caudal pico: ' + (results.Qp * 1000).toFixed(4) + ' L/s  |  Volumen: ' + results.Vt.toFixed(4) + ' m³  |  tc: ' + results.tc.toFixed(2) + ' min', 14, y); y += 10;
+              doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('Análisis TLW por Metal', 14, y); y += 7;
+              doc.setFontSize(9); doc.setTextColor(60);
+              results.ms.forEach(function(m) {
+                var t = results.tlw[m];
+                doc.text(m + ':  T1=' + t.T1.toFixed(3) + '  T2=' + t.T2.toFixed(3) + '  T3=' + t.T3.toFixed(3) + '  TLW=' + t.TLW.toFixed(3) + '%', 14, y); y += 5;
+              });
+              y += 5; doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('Impacto Ambiental', 14, y); y += 7;
+              doc.setFontSize(9); doc.setTextColor(60);
+              doc.text('Metal dominante: ' + results.dm + '  |  Nivel de riesgo: ' + results.riesgo, 14, y); y += 5;
+              results.ms.forEach(function(m) {
+                var imp = results.imp[m];
+                doc.text(m + ':  Carga=' + imp.load_mg.toFixed(2) + ' mg  |  Conc=' + imp.conc_mgL.toFixed(4) + ' mg/L', 14, y); y += 5;
+              });
+              y += 8; doc.setFontSize(8); doc.setTextColor(150); doc.text('© 2026 HydroTrace Platform — Generado automáticamente', 14, y);
+              doc.save('HydroTrace_Reporte_' + (simName || 'Simulacion').replace(/\s+/g, '_') + '.pdf');
+            } catch(e) { alert('Error al generar PDF: ' + e.message); }
+          }, className: 'bg-[#3B82F6] text-white px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-blue-600 transition-colors inline-flex items-center gap-2'
+        },
+          h('svg', { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2 }, h('path', { d: 'M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3' })),
+          'Descargar Reporte PDF'
+        )
+      ),
+
+      h('div', { className: 'text-center text-xs text-slate-400 py-6 border-t border-slate-200 mt-6' }, '© 2026 HYDROTRACE PLATFORM')
     )
   );
 }
