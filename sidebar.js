@@ -1,4 +1,4 @@
-// Sidebar Component - dark mode toggle, mobile-friendly
+// Sidebar Component - dark mode in user dropdown, no emojis
 function Sidebar({ currentPage, onNavigate, user, onLogout, darkMode, toggleDark }) {
   var h = React.createElement;
   var _s = React.useState(false), userMenuOpen = _s[0], setUserMenuOpen = _s[1];
@@ -39,17 +39,7 @@ function Sidebar({ currentPage, onNavigate, user, onLogout, darkMode, toggleDark
         );
       })
     ),
-    // Dark Mode Toggle
-    h('div', { className: 'px-4 py-2' },
-      h('button', {
-        onClick: toggleDark,
-        className: 'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-all'
-      },
-        h('span', { className: 'text-lg flex-shrink-0', style: { width: 18, textAlign: 'center' } }, darkMode ? '☀️' : '🌙'),
-        h('span', { className: 'truncate text-left' }, darkMode ? 'Modo Claro' : 'Modo Oscuro')
-      )
-    ),
-    // User Footer with dropdown
+    // User Footer with dropdown (includes dark mode toggle)
     h('div', { className: 'p-4 border-t border-slate-200 relative' },
       h('div', { className: 'flex items-center gap-3 cursor-pointer', onClick: function () { setUserMenuOpen(!userMenuOpen); } },
         h('div', { className: 'w-9 h-9 bg-[#3B82F6] rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0' }, user?.initials || 'JD'),
@@ -62,14 +52,25 @@ function Sidebar({ currentPage, onNavigate, user, onLogout, darkMode, toggleDark
         )
       ),
       userMenuOpen && h('div', { className: 'absolute bottom-full left-3 right-3 mb-1 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-50' },
+        // Profile
         h('button', { className: 'w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2', onClick: function () { setUserMenuOpen(false); onNavigate('perfil'); } },
           h('svg', { width: 14, height: 14, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2 }, h('path', { d: 'M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 3a4 4 0 100 8 4 4 0 000-8z' })),
           'Perfil'
         ),
+        // Dark mode toggle (no emojis)
+        h('button', { className: 'w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2', onClick: function () { toggleDark(); } },
+          h('svg', { width: 14, height: 14, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2 },
+            darkMode
+              ? h('path', { d: 'M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z' })
+              : h('path', { d: 'M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z' })
+          ),
+          darkMode ? 'Modo Claro' : 'Modo Oscuro'
+        ),
         h('div', { className: 'border-t border-slate-100 my-1' }),
+        // Logout
         h('button', { className: 'w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2', onClick: function () { setUserMenuOpen(false); if (onLogout) onLogout(); } },
           h('svg', { width: 14, height: 14, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2 }, h('path', { d: 'M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9' })),
-          'Cerrar sesión'
+          'Cerrar sesion'
         )
       )
     )

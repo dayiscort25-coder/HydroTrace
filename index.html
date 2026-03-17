@@ -75,19 +75,30 @@
       .main-content { margin-left: 0 !important; }
       .grid-cols-3, [class*="grid-cols-3"] { grid-template-columns: 1fr !important; }
       .grid-cols-4, [class*="grid-cols-4"] { grid-template-columns: 1fr 1fr !important; }
+      .grid-cols-2, [class*="grid-cols-2"] { grid-template-columns: 1fr !important; }
       .hero-flex { flex-direction: column !important; }
       .hero-flex > div { width: 100% !important; }
       .hero-flex .h-72 { height: 180px !important; }
       .login-flex { flex-direction: column !important; }
       .login-flex > div { width: 100% !important; min-height: auto !important; }
       .login-flex .login-image-panel { display: none !important; }
+      /* Inputs — comfortable touch targets */
+      input, select, textarea { min-height: 44px !important; font-size: 16px !important; padding: 10px 14px !important; }
+      /* KPI grid to 3 cols on tablet, 2 on phone */
+      [style*="repeat(6"] { grid-template-columns: repeat(3, 1fr) !important; }
     }
     @media (max-width: 480px) {
       .grid-cols-4, [class*="grid-cols-4"] { grid-template-columns: 1fr !important; }
       .p-6 { padding: 12px !important; }
       .p-8 { padding: 16px !important; }
+      .p-5 { padding: 14px !important; }
       .text-3xl { font-size: 1.25rem !important; }
       .text-2xl { font-size: 1.1rem !important; }
+      /* KPI grid to 2 cols on small phone */
+      [style*="repeat(6"] { grid-template-columns: repeat(2, 1fr) !important; }
+      /* Gap adjustments */
+      .gap-6 { gap: 12px !important; }
+      .gap-4 { gap: 10px !important; }
     }
   </style>
 </head>

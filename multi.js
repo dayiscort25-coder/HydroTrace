@@ -481,26 +481,19 @@ function MultiSimulation({ savedState, onSaveState }) {
           )
         ),
 
-        // Save button with name input
+        // Save button only (title is at the top)
         h('div', { className: 'bg-white rounded-xl border border-slate-200 p-5 text-center' },
           h('h3', { className: 'font-bold text-slate-900 mb-3' }, 'Guardar Simulación en Historial'),
-          h('div', { className: 'flex items-center gap-3 max-w-lg mx-auto' },
-            h('input', {
-              type: 'text', value: simName, onChange: function(e) { setSimName(e.target.value); },
-              placeholder: 'Nombre de la simulación (ej: Campaña Zona Norte)',
-              className: 'flex-1 px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-300 focus:outline-none'
-            }),
-            h('button', {
-              onClick: function() {
-                var title = simName.trim() || ('Multieventos - ' + results.ml.join(', ') + ' (' + new Date().toLocaleDateString('es-CO') + ')');
-                window.saveSimulation && window.saveSimulation('multi', title,
-                  { area: area, material: material, nEvents: results.nEvents },
-                  { cum: results.cum, totalVol: results.totalVol },
-                  results.ml, parseFloat(area) || 0
-                ).then(function() { setSaveMsg('Guardado exitosamente'); setSimName(''); });
-              }, className: 'bg-[#1E3A5F] text-white px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-[#15304f] transition-colors whitespace-nowrap'
-            }, 'Guardar')
-          ),
+          h('button', {
+            onClick: function() {
+              var title = simName.trim() || ('Multieventos - ' + results.ml.join(', ') + ' (' + new Date().toLocaleDateString('es-CO') + ')');
+              window.saveSimulation && window.saveSimulation('multi', title,
+                { area: area, material: material, nEvents: results.nEvents },
+                { cum: results.cum, totalVol: results.totalVol },
+                results.ml, parseFloat(area) || 0
+              ).then(function() { setSaveMsg('Guardado exitosamente'); setSimName(''); });
+            }, className: 'bg-[#1E3A5F] text-white px-8 py-2.5 rounded-lg font-bold text-sm hover:bg-[#15304f] transition-colors'
+          }, 'Guardar en Historial'),
           saveMsg && h('p', { className: 'text-green-600 text-sm font-semibold mt-2 animate-fadeIn' }, saveMsg)
         ),
 
