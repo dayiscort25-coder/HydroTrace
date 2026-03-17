@@ -19,8 +19,9 @@ function MultiSimulation({ savedState, onSaveState }) {
   var _run = _s(false), running = _run[0], setRunning = _run[1];
   var _pt = _s(''), pasteText = _pt[0], setPasteText = _pt[1];
   var _pm = _s(''), pasteMsg = _pm[0], setPasteMsg = _pm[1];
-  var _sn = _s(''), simName = _sn[0], setSimName = _sn[1];
+  var _sn = _s(init.simName || ''), simName = _sn[0], setSimName = _sn[1];
   var _sm2 = _s(''), saveMsg = _sm2[0], setSaveMsg = _sm2[1];
+  var _addr = _s(init.address || ''), eventAddress = _addr[0], setEventAddress = _addr[1];
 
   var _ev = _s(init.events || [
     { id: 1, type: 'Intensidad', value: '12.5', duration: '1', pattern: 'Uniforme', slope: '2.0', dryDays: '3' },
@@ -44,9 +45,9 @@ function MultiSimulation({ savedState, onSaveState }) {
   // State preservation
   React.useEffect(function () {
     return function () {
-      if (onSaveState) onSaveState({ area: area, material: material, coefC: coefC, events: events, metals: metals, results: results });
+      if (onSaveState) onSaveState({ area: area, material: material, coefC: coefC, events: events, metals: metals, results: results, simName: simName, address: eventAddress });
     };
-  }, [area, material, coefC, events, metals, results]);
+  }, [area, material, coefC, events, metals, results, simName, eventAddress]);
 
   var addEvent = function () {
     var newId = events.length > 0 ? Math.max.apply(null, events.map(function (e) { return e.id; })) + 1 : 1;
@@ -273,7 +274,8 @@ function MultiSimulation({ savedState, onSaveState }) {
           h('div', { className: 'flex-1' },
             h('label', { className: 'block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1' }, 'Dirección del evento'),
             h('input', {
-              type: 'text', placeholder: 'Ej: Autopista Norte Km 5, Bogotá',
+              type: 'text', value: eventAddress, onChange: function(e) { setEventAddress(e.target.value); },
+              placeholder: 'Ej: Autopista Norte Km 5, Bogotá',
               className: 'w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-purple-300 focus:outline-none'
             })
           )
@@ -499,7 +501,7 @@ function MultiSimulation({ savedState, onSaveState }) {
             onClick: function() {
               var title = simName.trim() || ('Multieventos - ' + results.ml.join(', ') + ' (' + new Date().toLocaleDateString('es-CO') + ')');
               window.saveSimulation && window.saveSimulation('multi', title,
-                { area: area, material: material, nEvents: results.nEvents },
+                { area: area, material: material, nEvents: results.nEvents, address: eventAddress },
                 { cum: results.cum, totalVol: results.totalVol },
                 results.ml, parseFloat(area) || 0
               ).then(function() { setSaveMsg('Guardado exitosamente'); setSimName(''); });
@@ -557,41 +559,66 @@ function MultiSimulation({ savedState, onSaveState }) {
         )
       ),
 
-      // Footer
-      // Export button
+      // Export buttons
       results && h('div', { className: 'bg-white rounded-xl border border-slate-200 p-5 text-center' },
         h('h3', { className: 'font-bold text-slate-900 mb-3' }, 'Exportar Resultados'),
-        h('button', {
-          onClick: function() {
-            try {
-              var doc = new window.jspdf.jsPDF();
-              doc.setFontSize(18); doc.setTextColor(30, 58, 95); doc.text('HydroTrace — Reporte Multieventos', 14, 20);
-              doc.setFontSize(10); doc.setTextColor(100); doc.text('Fecha: ' + new Date().toLocaleDateString('es-CO') + '  |  Tipo: Multieventos', 14, 28);
-              doc.setDrawColor(109, 40, 217); doc.line(14, 31, 196, 31);
-              var y = 38; doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('Parámetros', 14, y); y += 7;
-              doc.setFontSize(9); doc.setTextColor(60);
-              doc.text('Título: ' + (simName || 'Sin nombre'), 14, y); y += 5;
-              doc.text('Área: ' + area + ' m²  |  Material: ' + material + '  |  Eventos: ' + (results.nEvents || '-'), 14, y); y += 5;
-              doc.text('Metales: ' + results.ml.join(', '), 14, y); y += 10;
-              doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('Resultados Acumulados', 14, y); y += 7;
-              doc.setFontSize(9); doc.setTextColor(60);
-              if (results.cum) {
-                results.cum.forEach(function(ev, idx) {
-                  doc.text('Evento ' + (idx + 1) + ': Vol=' + (ev.vol || 0).toFixed(2) + ' m³', 14, y); y += 5;
-                  if (y > 270) { doc.addPage(); y = 20; }
-                });
-              }
-              y += 5; doc.setFontSize(8); doc.setTextColor(150); doc.text('© 2026 HydroTrace Platform — Generado automáticamente', 14, y);
-              doc.save('HydroTrace_Multi_' + (simName || 'Reporte').replace(/\s+/g, '_') + '.pdf');
-            } catch(e) { alert('Error al generar PDF: ' + e.message); }
-          }, className: 'bg-[#6D28D9] text-white px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-[#5B21B6] transition-colors inline-flex items-center gap-2'
-        },
-          h('svg', { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2 }, h('path', { d: 'M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3' })),
-          'Descargar Reporte PDF'
+        h('div', { className: 'flex justify-center gap-3' },
+          // PDF
+          h('button', {
+            onClick: function() {
+              try {
+                var doc = new window.jspdf.jsPDF();
+                doc.setFontSize(18); doc.setTextColor(30, 58, 95); doc.text('HydroTrace \u2014 Reporte Multieventos', 14, 20);
+                doc.setFontSize(10); doc.setTextColor(100); doc.text('Fecha: ' + new Date().toLocaleDateString('es-CO') + '  |  Tipo: Multieventos', 14, 28);
+                doc.setDrawColor(109, 40, 217); doc.line(14, 31, 196, 31);
+                var y = 38; doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('Par\u00e1metros', 14, y); y += 7;
+                doc.setFontSize(9); doc.setTextColor(60);
+                doc.text('T\u00edtulo: ' + (simName || 'Sin nombre'), 14, y); y += 5;
+                if (eventAddress) { doc.text('Direcci\u00f3n: ' + eventAddress, 14, y); y += 5; }
+                doc.text('\u00c1rea: ' + area + ' m\u00b2  |  Material: ' + material + '  |  Eventos: ' + (results.nEvents || '-'), 14, y); y += 5;
+                doc.text('Metales: ' + (results.ml ? results.ml.join(', ') : '-'), 14, y); y += 10;
+                doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('Resultados Acumulados', 14, y); y += 7;
+                doc.setFontSize(9); doc.setTextColor(60);
+                if (results.cum && Array.isArray(results.cum)) {
+                  results.cum.forEach(function(ev, idx) {
+                    var vol = ev && ev.vol != null ? ev.vol.toFixed(2) : '0';
+                    doc.text('Evento ' + (idx + 1) + ': Vol=' + vol + ' m\u00b3', 14, y); y += 5;
+                    if (y > 270) { doc.addPage(); y = 20; }
+                  });
+                }
+                y += 5; doc.setFontSize(8); doc.setTextColor(150); doc.text('\u00a9 2026 HydroTrace Platform', 14, y);
+                doc.save('HydroTrace_Multi_' + (simName || 'Reporte').replace(/\s+/g, '_') + '.pdf');
+              } catch(e) { alert('Error al generar PDF: ' + e.message); }
+            }, className: 'bg-[#6D28D9] text-white px-5 py-2.5 rounded-lg font-bold text-sm hover:bg-[#5B21B6] transition-colors inline-flex items-center gap-2'
+          },
+            h('svg', { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2 }, h('path', { d: 'M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3' })),
+            'PDF'
+          ),
+          // Excel
+          h('button', {
+            onClick: function() {
+              try {
+                var wb = XLSX.utils.book_new();
+                var params = [['Par\u00e1metro', 'Valor'], ['T\u00edtulo', simName || '-'], ['Direcci\u00f3n', eventAddress || '-'], ['\u00c1rea (m\u00b2)', area], ['Material', material], ['Eventos', results.nEvents || '-'], ['Metales', results.ml ? results.ml.join(', ') : '-']];
+                var ws1 = XLSX.utils.aoa_to_sheet(params);
+                XLSX.utils.book_append_sheet(wb, ws1, 'Par\u00e1metros');
+                if (results.cum && Array.isArray(results.cum)) {
+                  var cumRows = [['Evento', 'Volumen (m\u00b3)']];
+                  results.cum.forEach(function(ev, idx) { cumRows.push([idx + 1, ev && ev.vol != null ? ev.vol : 0]); });
+                  var ws2 = XLSX.utils.aoa_to_sheet(cumRows);
+                  XLSX.utils.book_append_sheet(wb, ws2, 'Resultados');
+                }
+                XLSX.writeFile(wb, 'HydroTrace_Multi_' + (simName || 'Reporte').replace(/\s+/g, '_') + '.xlsx');
+              } catch(e) { alert('Error al generar Excel: ' + e.message); }
+            }, className: 'bg-[#10B981] text-white px-5 py-2.5 rounded-lg font-bold text-sm hover:bg-emerald-600 transition-colors inline-flex items-center gap-2'
+          },
+            h('svg', { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2 }, h('path', { d: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z' }), h('path', { d: 'M14 2v6h6M8 13h8M8 17h8M8 9h2' })),
+            'Excel'
+          )
         )
       ),
 
-      h('div', { className: 'text-center text-xs text-slate-400 py-6 border-t border-slate-200 mt-6' }, '© 2026 HYDROTRACE PLATFORM')
+      h('div', { className: 'text-center text-xs text-slate-400 py-6 border-t border-slate-200 mt-6' }, '\u00a9 2026 HYDROTRACE PLATFORM')
     )
   );
 }

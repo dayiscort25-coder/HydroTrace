@@ -27,8 +27,9 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
   var _run = _s(false), running = _run[0], setRunning = _run[1];
   var _pt = _s('Mn\t63.8\t56\t21.7\t22.7'), pasteText = _pt[0], setPasteText = _pt[1];
   var _pm = _s(''), pasteMsg = _pm[0], setPasteMsg = _pm[1];
-  var _sn = _s(''), simName = _sn[0], setSimName = _sn[1];
+  var _sn = _s(init.simName || ''), simName = _sn[0], setSimName = _sn[1];
   var _sm = _s(''), saveMsg = _sm[0], setSaveMsg = _sm[1];
+  var _addr = _s(init.address || ''), eventAddress = _addr[0], setEventAddress = _addr[1];
 
   var defaultMetals = Object.entries(E.DM).map(function (e) { return { name: e[0], LW: String(e[1].LW), ML: String(e[1].ML), LE: String(e[1].LE), Ler: String(e[1].Ler), Bmax: String(e[1].Bmax), kb: String(e[1].kb), kw: String(e[1].kw), n: String(e[1].n), active: true }; });
   var _met = _s(init.metals || defaultMetals), metals = _met[0], setMetals = _met[1];
@@ -36,9 +37,9 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
   // Save state when navigating away
   React.useEffect(function () {
     return function () {
-      if (onSaveState) onSaveState({ area: area, length: length, width: width, material: material, coefC: coefC, hydroMode: hydroMode, intensityVal: intensityVal, precipVal: precipVal, duration: duration, slope: slope, dryDays: dryDays, pattern: pattern, metals: metals, results: results });
+      if (onSaveState) onSaveState({ area: area, length: length, width: width, material: material, coefC: coefC, hydroMode: hydroMode, intensityVal: intensityVal, precipVal: precipVal, duration: duration, slope: slope, dryDays: dryDays, pattern: pattern, metals: metals, results: results, simName: simName, address: eventAddress });
     };
-  }, [area, length, width, material, coefC, hydroMode, intensityVal, precipVal, duration, slope, dryDays, pattern, metals, results]);
+  }, [area, length, width, material, coefC, hydroMode, intensityVal, precipVal, duration, slope, dryDays, pattern, metals, results, simName, eventAddress]);
 
   React.useEffect(function () {
     if (preloadedParams) {
@@ -201,7 +202,8 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
           h('div', { className: 'flex-1' },
             h('label', { className: 'block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1' }, 'Dirección del evento'),
             h('input', {
-              type: 'text', placeholder: 'Ej: Cra 7 con Calle 72, Bogotá',
+              type: 'text', value: eventAddress, onChange: function(e) { setEventAddress(e.target.value); },
+              placeholder: 'Ej: Cra 7 con Calle 72, Bogotá',
               className: 'w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-300 focus:outline-none'
             })
           )
@@ -627,7 +629,7 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
             var ms = results.ms;
             var title = simName.trim() || ('Evento Único - ' + ms.join(', ') + ' (' + new Date().toLocaleDateString('es-CO') + ')');
             window.saveSimulation && window.saveSimulation('single', title,
-              { area: area, intensity: results.Ip, duration: duration, dryDays: dryDays, slope: slope, material: material },
+              { area: area, intensity: results.Ip, duration: duration, dryDays: dryDays, slope: slope, material: material, address: eventAddress },
               { tlw: results.tlw, imp: results.imp, dm: results.dm, riesgo: results.riesgo },
               ms, parseFloat(area) || 0
             ).then(function() { setSaveMsg('Guardado exitosamente'); setSimName(''); });
@@ -637,45 +639,83 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
       ),
 
       // Footer
-      // Export button
+      // Export buttons
       results && h('div', { className: 'bg-white rounded-xl border border-slate-200 p-5 text-center' },
         h('h3', { className: 'font-bold text-slate-900 mb-3' }, 'Exportar Resultados'),
-        h('button', {
-          onClick: function() {
-            try {
-              var doc = new window.jspdf.jsPDF();
-              doc.setFontSize(18); doc.setTextColor(30, 58, 95); doc.text('HydroTrace — Reporte de Simulación', 14, 20);
-              doc.setFontSize(10); doc.setTextColor(100); doc.text('Fecha: ' + new Date().toLocaleDateString('es-CO') + '  |  Tipo: Evento Único', 14, 28);
-              doc.setDrawColor(59, 130, 246); doc.line(14, 31, 196, 31);
-              var y = 38; doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('Parámetros de Entrada', 14, y); y += 8;
-              doc.setFontSize(9); doc.setTextColor(60);
-              doc.text('Título: ' + (simName || 'Sin nombre'), 14, y); y += 5;
-              doc.text('Área: ' + area + ' m²  |  Material: ' + material + '  |  Coef. C: ' + coefC, 14, y); y += 5;
-              doc.text('Intensidad: ' + intensityVal + ' mm/h  |  Duración: ' + duration + ' h  |  Días secos: ' + dryDays, 14, y); y += 5;
-              doc.text('Pendiente: ' + slope + '%  |  Longitud: ' + length + ' m  |  Ancho: ' + width + ' m', 14, y); y += 10;
-              doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('Resultados Hidrológicos', 14, y); y += 7;
-              doc.setFontSize(9); doc.setTextColor(60);
-              doc.text('Caudal pico: ' + (results.Qp * 1000).toFixed(4) + ' L/s  |  Volumen: ' + results.Vt.toFixed(4) + ' m³  |  tc: ' + results.tc.toFixed(2) + ' min', 14, y); y += 10;
-              doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('Análisis TLW por Metal', 14, y); y += 7;
-              doc.setFontSize(9); doc.setTextColor(60);
-              results.ms.forEach(function(m) {
-                var t = results.tlw[m];
-                doc.text(m + ':  T1=' + t.T1.toFixed(3) + '  T2=' + t.T2.toFixed(3) + '  T3=' + t.T3.toFixed(3) + '  TLW=' + t.TLW.toFixed(3) + '%', 14, y); y += 5;
-              });
-              y += 5; doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('Impacto Ambiental', 14, y); y += 7;
-              doc.setFontSize(9); doc.setTextColor(60);
-              doc.text('Metal dominante: ' + results.dm + '  |  Nivel de riesgo: ' + results.riesgo, 14, y); y += 5;
-              results.ms.forEach(function(m) {
-                var imp = results.imp[m];
-                doc.text(m + ':  Carga=' + imp.load_mg.toFixed(2) + ' mg  |  Conc=' + imp.conc_mgL.toFixed(4) + ' mg/L', 14, y); y += 5;
-              });
-              y += 8; doc.setFontSize(8); doc.setTextColor(150); doc.text('© 2026 HydroTrace Platform — Generado automáticamente', 14, y);
-              doc.save('HydroTrace_Reporte_' + (simName || 'Simulacion').replace(/\s+/g, '_') + '.pdf');
-            } catch(e) { alert('Error al generar PDF: ' + e.message); }
-          }, className: 'bg-[#3B82F6] text-white px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-blue-600 transition-colors inline-flex items-center gap-2'
-        },
-          h('svg', { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2 }, h('path', { d: 'M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3' })),
-          'Descargar Reporte PDF'
+        h('div', { className: 'flex justify-center gap-3' },
+          // PDF
+          h('button', {
+            onClick: function() {
+              try {
+                var doc = new window.jspdf.jsPDF();
+                doc.setFontSize(18); doc.setTextColor(30, 58, 95); doc.text('HydroTrace \u2014 Reporte de Simulaci\u00f3n', 14, 20);
+                doc.setFontSize(10); doc.setTextColor(100); doc.text('Fecha: ' + new Date().toLocaleDateString('es-CO') + '  |  Tipo: Evento \u00danico', 14, 28);
+                doc.setDrawColor(59, 130, 246); doc.line(14, 31, 196, 31);
+                var y = 38; doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('Par\u00e1metros de Entrada', 14, y); y += 8;
+                doc.setFontSize(9); doc.setTextColor(60);
+                doc.text('T\u00edtulo: ' + (simName || 'Sin nombre'), 14, y); y += 5;
+                if (eventAddress) { doc.text('Direcci\u00f3n: ' + eventAddress, 14, y); y += 5; }
+                doc.text('\u00c1rea: ' + area + ' m\u00b2  |  Material: ' + material + '  |  Coef. C: ' + coefC, 14, y); y += 5;
+                doc.text('Intensidad: ' + intensityVal + ' mm/h  |  Duraci\u00f3n: ' + duration + ' h  |  D\u00edas secos: ' + dryDays, 14, y); y += 5;
+                doc.text('Pendiente: ' + slope + '%  |  Longitud: ' + length + ' m  |  Ancho: ' + width + ' m', 14, y); y += 10;
+                doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('Resultados Hidrol\u00f3gicos', 14, y); y += 7;
+                doc.setFontSize(9); doc.setTextColor(60);
+                var Qp = results.Qp != null ? (results.Qp * 1000).toFixed(4) : '-';
+                var Vt = results.Vt != null ? results.Vt.toFixed(4) : '-';
+                var tc = results.tc != null ? results.tc.toFixed(2) : '-';
+                doc.text('Caudal pico: ' + Qp + ' L/s  |  Volumen: ' + Vt + ' m\u00b3  |  tc: ' + tc + ' min', 14, y); y += 10;
+                doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('An\u00e1lisis TLW por Metal', 14, y); y += 7;
+                doc.setFontSize(9); doc.setTextColor(60);
+                if (results.ms && results.tlw) {
+                  results.ms.forEach(function(m) {
+                    var t = results.tlw[m];
+                    if (t) { doc.text(m + ':  T1=' + (t.T1 != null ? t.T1.toFixed(3) : '-') + '  T2=' + (t.T2 != null ? t.T2.toFixed(3) : '-') + '  T3=' + (t.T3 != null ? t.T3.toFixed(3) : '-') + '  TLW=' + (t.TLW != null ? t.TLW.toFixed(3) : '-') + '%', 14, y); y += 5; }
+                  });
+                }
+                y += 5; doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('Impacto Ambiental', 14, y); y += 7;
+                doc.setFontSize(9); doc.setTextColor(60);
+                doc.text('Metal dominante: ' + (results.dm || '-') + '  |  Nivel de riesgo: ' + (results.riesgo || '-'), 14, y); y += 5;
+                if (results.ms && results.imp) {
+                  results.ms.forEach(function(m) {
+                    var imp = results.imp[m];
+                    if (imp) { doc.text(m + ':  Carga=' + (imp.load_mg != null ? imp.load_mg.toFixed(2) : '-') + ' mg  |  Conc=' + (imp.conc_mgL != null ? imp.conc_mgL.toFixed(4) : '-') + ' mg/L', 14, y); y += 5; }
+                  });
+                }
+                y += 8; doc.setFontSize(8); doc.setTextColor(150); doc.text('\u00a9 2026 HydroTrace Platform', 14, y);
+                doc.save('HydroTrace_Reporte_' + (simName || 'Simulacion').replace(/\s+/g, '_') + '.pdf');
+              } catch(e) { alert('Error al generar PDF: ' + e.message); }
+            }, className: 'bg-[#3B82F6] text-white px-5 py-2.5 rounded-lg font-bold text-sm hover:bg-blue-600 transition-colors inline-flex items-center gap-2'
+          },
+            h('svg', { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2 }, h('path', { d: 'M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3' })),
+            'PDF'
+          ),
+          // Excel
+          h('button', {
+            onClick: function() {
+              try {
+                var wb = XLSX.utils.book_new();
+                var params = [['Par\u00e1metro', 'Valor'], ['T\u00edtulo', simName || 'Sin nombre'], ['Direcci\u00f3n', eventAddress || '-'], ['\u00c1rea (m\u00b2)', area], ['Material', material], ['Coef. C', coefC], ['Intensidad (mm/h)', intensityVal], ['Duraci\u00f3n (h)', duration], ['D\u00edas secos', dryDays], ['Pendiente (%)', slope]];
+                var ws1 = XLSX.utils.aoa_to_sheet(params);
+                XLSX.utils.book_append_sheet(wb, ws1, 'Par\u00e1metros');
+                if (results.ms && results.tlw) {
+                  var tlwRows = [['Metal', 'T1', 'T2', 'T3', 'TLW (%)']];
+                  results.ms.forEach(function(m) { var t = results.tlw[m]; if (t) { tlwRows.push([m, t.T1, t.T2, t.T3, t.TLW]); } });
+                  var ws2 = XLSX.utils.aoa_to_sheet(tlwRows);
+                  XLSX.utils.book_append_sheet(wb, ws2, 'TLW');
+                }
+                if (results.ms && results.imp) {
+                  var impRows = [['Metal', 'Carga (mg)', 'Conc (mg/L)']];
+                  results.ms.forEach(function(m) { var imp = results.imp[m]; if (imp) { impRows.push([m, imp.load_mg, imp.conc_mgL]); } });
+                  var ws3 = XLSX.utils.aoa_to_sheet(impRows);
+                  XLSX.utils.book_append_sheet(wb, ws3, 'Impacto');
+                }
+                XLSX.writeFile(wb, 'HydroTrace_' + (simName || 'Reporte').replace(/\s+/g, '_') + '.xlsx');
+              } catch(e) { alert('Error al generar Excel: ' + e.message); }
+            }, className: 'bg-[#10B981] text-white px-5 py-2.5 rounded-lg font-bold text-sm hover:bg-emerald-600 transition-colors inline-flex items-center gap-2'
+          },
+            h('svg', { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2 }, h('path', { d: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z' }), h('path', { d: 'M14 2v6h6M8 13h8M8 17h8M8 9h2' })),
+            'Excel'
+          )
         )
       ),
 

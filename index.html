@@ -46,26 +46,26 @@
 
     .dark body, .dark .bg-white, .dark [class*="bg-white"] { background-color: var(--bg-card) !important; color: var(--text-primary) !important; }
     .dark .bg-\[\\#F7F9FC\], .dark [class*="bg-[#F7F9FC]"] { background-color: var(--bg-main) !important; }
-    .dark .text-slate-900, .dark [class*="text-slate-900"] { color: var(--text-primary) !important; }
-    .dark .text-slate-700, .dark [class*="text-slate-700"] { color: #cbd5e1 !important; }
-    .dark .text-slate-600, .dark [class*="text-slate-600"] { color: #94a3b8 !important; }
-    .dark .text-slate-500, .dark [class*="text-slate-500"] { color: var(--text-secondary) !important; }
-    .dark .text-slate-400, .dark [class*="text-slate-400"] { color: var(--text-muted) !important; }
+    .dark .text-slate-900, .dark [class*="text-slate-900"] { color: #FFFFFF !important; }
+    .dark .text-slate-700, .dark [class*="text-slate-700"] { color: #F8F9FA !important; }
+    .dark .text-slate-600, .dark [class*="text-slate-600"] { color: #E2E8F0 !important; }
+    .dark .text-slate-500, .dark [class*="text-slate-500"] { color: #CBD5E1 !important; }
+    .dark .text-slate-400, .dark [class*="text-slate-400"] { color: #94A3B8 !important; }
     .dark .border-slate-200, .dark [class*="border-slate-200"] { border-color: var(--border) !important; }
     .dark .border-slate-100 { border-color: #334155 !important; }
     .dark .bg-slate-50, .dark [class*="bg-slate-50"] { background-color: #1e293b !important; }
     .dark .hover\:bg-slate-50:hover { background-color: #334155 !important; }
-    .dark input, .dark select, .dark textarea { background-color: #334155 !important; border-color: #475569 !important; color: #f1f5f9 !important; }
-    .dark input::placeholder, .dark textarea::placeholder { color: #64748b !important; }
+    .dark input, .dark select, .dark textarea { background-color: #334155 !important; border-color: #475569 !important; color: #FFFFFF !important; }
+    .dark input::placeholder, .dark textarea::placeholder { color: #94A3B8 !important; }
     .dark .shadow-lg { box-shadow: 0 10px 25px rgba(0,0,0,0.4) !important; }
-    .dark h1, .dark h2, .dark h3, .dark h4 { color: #f1f5f9 !important; }
-    .dark label { color: #cbd5e1 !important; }
-    .dark .font-mono { color: #e2e8f0 !important; }
-    .dark th { color: #94a3b8 !important; }
-    .dark td { color: #cbd5e1 !important; }
+    .dark h1, .dark h2, .dark h3, .dark h4 { color: #FFFFFF !important; }
+    .dark label { color: #F8F9FA !important; }
+    .dark .font-mono { color: #F8F9FA !important; }
+    .dark th { color: #CBD5E1 !important; }
+    .dark td { color: #F8F9FA !important; }
     .dark .bg-blue-50, .dark .bg-green-50, .dark .bg-yellow-50, .dark .bg-orange-50, .dark .bg-red-50, .dark .bg-purple-50, .dark .bg-amber-50, .dark .bg-emerald-50, .dark .bg-rose-50, .dark .bg-cyan-50 { background-color: rgba(30,41,59,0.8) !important; }
     .dark .bg-blue-100, .dark .bg-green-100, .dark .bg-purple-100, .dark .bg-amber-100 { background-color: rgba(51,65,85,0.6) !important; }
-    .dark p { color: #cbd5e1 !important; }
+    .dark p { color: #F8F9FA !important; }
     .dark .text-sm, .dark .text-xs, .dark .text-[11px], .dark .text-[10px], .dark .text-[9px] { color: inherit; }
 
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -231,6 +231,7 @@
     function HistorialPage(props) {
       var h = React.createElement;
       var user = props.user;
+      var onLoadSim = props.onLoadSim;
       var _s = React.useState;
       var _data = _s([]), data = _data[0], setData = _data[1];
       var _loading = _s(true), loading = _loading[0], setLoading = _loading[1];
@@ -288,8 +289,20 @@
                     h('div', { className: 'flex items-center gap-2 mt-0.5 flex-wrap' },
                       h('span', { className: 'text-[10px] text-slate-400' }, dateStr),
                       h('span', { className: 'text-[10px] text-slate-500' }, (item.metals_used || []).join(', ')),
-                      h('span', { className: 'text-[10px] text-slate-500' }, (item.area_m2 || 0) + ' m²')
+                      h('span', { className: 'text-[10px] text-slate-500' }, (item.area_m2 || 0) + ' m²'),
+                      item.config && item.config.address && h('span', { className: 'text-[10px] text-slate-500' }, '📍 ' + item.config.address)
                     )
+                  ),
+                  h('button', {
+                    onClick: function() {
+                      if (onLoadSim) {
+                        onLoadSim(item);
+                      }
+                    },
+                    title: 'Cargar simulación',
+                    className: 'text-blue-400 hover:text-blue-600 transition-colors flex-shrink-0 p-1 mr-1'
+                  },
+                    h('svg', { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2 }, h('path', { d: 'M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M13.8 12H3' }))
                   ),
                   h('button', { onClick: function() { handleDelete([item.id]); }, title: 'Eliminar', className: 'text-slate-300 hover:text-red-500 transition-colors flex-shrink-0 p-1' },
                     h('svg', { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2 }, h('path', { d: 'M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14' }))
@@ -355,6 +368,27 @@
         }).select().then(function (res) { return res; });
       };
 
+      var handleLoadSim = function(item) {
+        var cfg = item.config || {};
+        var type = item.simulation_type;
+        if (type === 'single') {
+          setSingleState({
+            area: String(cfg.area || '5000'), material: cfg.material || 'Asfalto', coefC: String(cfg.coefC || '0.85'),
+            intensityVal: String(cfg.intensity || '35.5'), duration: String(cfg.duration || '1'), dryDays: String(cfg.dryDays || '5'),
+            slope: String(cfg.slope || '2.5'), simName: item.title || '', address: cfg.address || '',
+            results: item.results || null
+          });
+          setCurrentPage('single');
+        } else {
+          setMultiState({
+            area: String(cfg.area || '5000'), material: cfg.material || 'Asfalto', coefC: String(cfg.coefC || '0.85'),
+            simName: item.title || '', address: cfg.address || '',
+            results: item.results || null
+          });
+          setCurrentPage('multi');
+        }
+      };
+
       if (!user) {
         return h(window.LoginPage, { onLogin: handleLogin });
       }
@@ -371,7 +405,7 @@
         currentPage === 'home' && h(window.HomePage, { onNavigate: handleNavigate, onRunScenario: handleRunScenario, user: user }),
         currentPage === 'single' && h(window.SingleSimulation, { preloadedParams: preloadedParams, savedState: singleState, onSaveState: setSingleState }),
         currentPage === 'multi' && h(window.MultiSimulation, { savedState: multiState, onSaveState: setMultiState }),
-        currentPage === 'historial' && h(HistorialPage, { user: user }),
+        currentPage === 'historial' && h(HistorialPage, { user: user, onLoadSim: handleLoadSim }),
         currentPage === 'perfil' && h(ProfilePage, { user: user, onUpdateUser: handleUpdateUser, onNavigate: handleNavigate })
       );
     }
