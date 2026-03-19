@@ -260,11 +260,17 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
             h('thead', null,
               h('tr', { className: 'bg-slate-50' },
                 (function() {
-                  var tips = { Metal: 'Metal pesado analizado', LW: 'Porcentaje de RDS < 250µm susceptible al transporte por escorrentía', ML: 'Porcentaje de metales pesados asociados a RDS < 250µm', LE: 'Porcentaje de lixiviación de metales pesados (< 250µm)', Ler: 'Mediana de los valores de lixiviación por cada metal', Bmax: 'Acumulación máxima de masa (mg/m²)', kb: 'Tasa de acumulación (1/día)', kw: 'Coeficiente de lavado', n: 'Exponente de intensidad', Activo: 'Incluir en simulación' };
+                  var tips = { LW: 'Porcentaje de RDS < 250\u00b5m susceptible al transporte por escorrent\u00eda', ML: 'Porcentaje de metales pesados asociados a RDS < 250\u00b5m', LE: 'Porcentaje de lixiviaci\u00f3n de metales pesados (< 250\u00b5m)', Ler: 'Mediana de lixiviaci\u00f3n por metal', Bmax: 'Acumulaci\u00f3n m\u00e1xima de masa (mg/m\u00b2)', kb: 'Tasa de acumulaci\u00f3n (1/d\u00eda)', kw: 'Coeficiente de lavado', n: 'Exponente de intensidad' };
                   return ['Metal', 'LW', 'ML', 'LE', 'Ler', 'Bmax', 'kb', 'kw', 'n', 'Activo'].map(function (c) {
-                    return h('th', { key: c, title: tips[c] || '', className: 'px-2 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center cursor-help' },
-                      c, c !== 'Metal' && c !== 'Activo' ? h('span', { className: 'ml-0.5 text-blue-400 text-[8px]' }, '?') : null
-                    );
+                    if (tips[c]) {
+                      return h('th', { key: c, className: 'px-2 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center' },
+                        h('span', { className: 'ht-tip' }, c,
+                          h('span', { className: 'text-blue-400 text-[8px] ml-0.5' }, '?'),
+                          h('span', { className: 'ht-tip-text' }, tips[c])
+                        )
+                      );
+                    }
+                    return h('th', { key: c, className: 'px-2 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center' }, c);
                   });
                 })()
               )
@@ -653,44 +659,70 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
           // PDF
           h('button', {
             onClick: function() {
-              try {
-                var doc = new window.jspdf.jsPDF();
-                doc.setFontSize(18); doc.setTextColor(30, 58, 95); doc.text('HydroTrace \u2014 Reporte de Simulaci\u00f3n', 14, 20);
-                doc.setFontSize(10); doc.setTextColor(100); doc.text('Fecha: ' + new Date().toLocaleDateString('es-CO') + '  |  Tipo: Evento \u00danico', 14, 28);
-                doc.setDrawColor(59, 130, 246); doc.line(14, 31, 196, 31);
-                var y = 38; doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('Par\u00e1metros de Entrada', 14, y); y += 8;
-                doc.setFontSize(9); doc.setTextColor(60);
-                doc.text('T\u00edtulo: ' + (simName || 'Sin nombre'), 14, y); y += 5;
-                if (eventAddress) { doc.text('Direcci\u00f3n: ' + eventAddress, 14, y); y += 5; }
-                doc.text('\u00c1rea: ' + area + ' m\u00b2  |  Material: ' + material + '  |  Coef. C: ' + coefC, 14, y); y += 5;
-                doc.text('Intensidad: ' + intensityVal + ' mm/h  |  Duraci\u00f3n: ' + duration + ' h  |  D\u00edas secos: ' + dryDays, 14, y); y += 5;
-                doc.text('Pendiente: ' + slope + '%  |  Longitud: ' + length + ' m  |  Ancho: ' + width + ' m', 14, y); y += 10;
-                doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('Resultados Hidrol\u00f3gicos', 14, y); y += 7;
-                doc.setFontSize(9); doc.setTextColor(60);
-                var Qp = results.Qp != null ? (results.Qp * 1000).toFixed(4) : '-';
-                var Vt = results.Vt != null ? results.Vt.toFixed(4) : '-';
-                var tc = results.tc != null ? results.tc.toFixed(2) : '-';
-                doc.text('Caudal pico: ' + Qp + ' L/s  |  Volumen: ' + Vt + ' m\u00b3  |  tc: ' + tc + ' min', 14, y); y += 10;
-                doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('An\u00e1lisis TLW por Metal', 14, y); y += 7;
-                doc.setFontSize(9); doc.setTextColor(60);
-                if (results.ms && results.tlw) {
-                  results.ms.forEach(function(m) {
-                    var t = results.tlw[m];
-                    if (t) { doc.text(m + ':  T1=' + (t.T1 != null ? t.T1.toFixed(3) : '-') + '  T2=' + (t.T2 != null ? t.T2.toFixed(3) : '-') + '  T3=' + (t.T3 != null ? t.T3.toFixed(3) : '-') + '  TLW=' + (t.TLW != null ? t.TLW.toFixed(3) : '-') + '%', 14, y); y += 5; }
-                  });
-                }
-                y += 5; doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('Impacto Ambiental', 14, y); y += 7;
-                doc.setFontSize(9); doc.setTextColor(60);
-                doc.text('Metal dominante: ' + (results.dm || '-') + '  |  Nivel de riesgo: ' + (results.riesgo || '-'), 14, y); y += 5;
-                if (results.ms && results.imp) {
-                  results.ms.forEach(function(m) {
-                    var imp = results.imp[m];
-                    if (imp) { doc.text(m + ':  Carga=' + (imp.load_mg != null ? imp.load_mg.toFixed(2) : '-') + ' mg  |  Conc=' + (imp.conc_mgL != null ? imp.conc_mgL.toFixed(4) : '-') + ' mg/L', 14, y); y += 5; }
-                  });
-                }
-                y += 8; doc.setFontSize(8); doc.setTextColor(150); doc.text('\u00a9 2026 HydroTrace Platform', 14, y);
-                doc.save('HydroTrace_Reporte_' + (simName || 'Simulacion').replace(/\s+/g, '_') + '.pdf');
-              } catch(e) { alert('Error al generar PDF: ' + e.message); }
+              (async function() {
+                try {
+                  var doc = new window.jspdf.jsPDF();
+                  doc.setFontSize(18); doc.setTextColor(30, 58, 95); doc.text('HydroTrace \u2014 Reporte de Simulaci\u00f3n', 14, 20);
+                  doc.setFontSize(10); doc.setTextColor(100); doc.text('Fecha: ' + new Date().toLocaleDateString('es-CO') + '  |  Tipo: Evento \u00danico', 14, 28);
+                  doc.setDrawColor(59, 130, 246); doc.line(14, 31, 196, 31);
+                  var y = 38; doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('Par\u00e1metros de Entrada', 14, y); y += 8;
+                  doc.setFontSize(9); doc.setTextColor(60);
+                  doc.text('T\u00edtulo: ' + (simName || 'Sin nombre'), 14, y); y += 5;
+                  if (eventAddress) { doc.text('Direcci\u00f3n: ' + eventAddress, 14, y); y += 5; }
+                  doc.text('\u00c1rea: ' + area + ' m\u00b2  |  Material: ' + material + '  |  Coef. C: ' + coefC, 14, y); y += 5;
+                  doc.text('Intensidad: ' + intensityVal + ' mm/h  |  Duraci\u00f3n: ' + duration + ' h  |  D\u00edas secos: ' + dryDays, 14, y); y += 5;
+                  doc.text('Pendiente: ' + slope + '%  |  Longitud: ' + length + ' m  |  Ancho: ' + width + ' m', 14, y); y += 10;
+                  doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('Resultados Hidrol\u00f3gicos', 14, y); y += 7;
+                  doc.setFontSize(9); doc.setTextColor(60);
+                  var qp = results.Qp != null ? (results.Qp * 1000).toFixed(4) : '-';
+                  var vt = results.Vt != null ? results.Vt.toFixed(4) : '-';
+                  var tcv = results.tc != null ? results.tc.toFixed(2) : '-';
+                  doc.text('Caudal pico: ' + qp + ' L/s  |  Volumen: ' + vt + ' m\u00b3  |  tc: ' + tcv + ' min', 14, y); y += 10;
+                  // TLW Table
+                  doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('An\u00e1lisis TLW por Metal', 14, y); y += 7;
+                  doc.setFontSize(9); doc.setTextColor(60);
+                  if (results.ms && results.tlw) {
+                    results.ms.forEach(function(m) {
+                      var t = results.tlw[m];
+                      if (t) { doc.text(m + ':  T1=' + (t.T1 != null ? t.T1.toFixed(3) : '-') + '  T2=' + (t.T2 != null ? t.T2.toFixed(3) : '-') + '  T3=' + (t.T3 != null ? t.T3.toFixed(3) : '-') + '  TLW=' + (t.TLW != null ? t.TLW.toFixed(3) : '-') + '%', 14, y); y += 5; }
+                    });
+                  }
+                  // Concentrations
+                  y += 5; doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('Concentraciones e Impacto Ambiental', 14, y); y += 7;
+                  doc.setFontSize(9); doc.setTextColor(60);
+                  doc.text('Metal dominante: ' + (results.dm || '-') + '  |  Nivel de riesgo: ' + (results.riesgo || '-'), 14, y); y += 6;
+                  if (results.ms && results.imp) {
+                    doc.setFontSize(8);
+                    doc.text('Metal          Carga (mg)     Conc. (mg/L)', 14, y); y += 4;
+                    doc.line(14, y, 100, y); y += 3;
+                    results.ms.forEach(function(m) {
+                      var imp = results.imp[m];
+                      if (imp) {
+                        var load = imp.load_mg != null ? imp.load_mg.toFixed(4) : '-';
+                        var conc = imp.conc_mgL != null ? imp.conc_mgL.toFixed(6) : '-';
+                        doc.text(m.padEnd(15) + load.padStart(12) + conc.padStart(15), 14, y); y += 4;
+                      }
+                    });
+                  }
+                  // Charts via html2canvas
+                  y += 5;
+                  if (typeof html2canvas === 'function') {
+                    var charts = document.querySelectorAll('.recharts-wrapper');
+                    for (var ci = 0; ci < Math.min(charts.length, 3); ci++) {
+                      try {
+                        var canvas = await html2canvas(charts[ci], { backgroundColor: '#ffffff', scale: 2 });
+                        var imgData = canvas.toDataURL('image/png');
+                        if (y > 200) { doc.addPage(); y = 20; }
+                        doc.addImage(imgData, 'PNG', 14, y, 180, 60);
+                        y += 65;
+                      } catch(ce) { /* skip chart if capture fails */ }
+                    }
+                  }
+                  if (y > 270) { doc.addPage(); y = 20; }
+                  doc.setFontSize(8); doc.setTextColor(150); doc.text('\u00a9 2026 HydroTrace Platform', 14, y);
+                  doc.save('HydroTrace_Reporte_' + (simName || 'Simulacion').replace(/\s+/g, '_') + '.pdf');
+                } catch(e) { alert('Error al generar PDF: ' + e.message); }
+              })();
             }, className: 'bg-[#3B82F6] text-white px-5 py-2.5 rounded-lg font-bold text-sm hover:bg-blue-600 transition-colors inline-flex items-center gap-2'
           },
             h('svg', { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2 }, h('path', { d: 'M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3' })),

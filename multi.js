@@ -343,11 +343,17 @@ function MultiSimulation({ savedState, onSaveState }) {
             h('thead', null,
               h('tr', { className: 'bg-slate-50' },
                 (function() {
-                  var tips = { Metal: 'Metal pesado analizado', LW: 'Porcentaje de RDS < 250µm susceptible al transporte por escorrentía', ML: 'Porcentaje de metales pesados asociados a RDS < 250µm', LE: 'Porcentaje de lixiviación de metales pesados (< 250µm)', Ler: 'Mediana de los valores de lixiviación por cada metal', Bmax: 'Acumulación máxima de masa (mg/m²)', kb: 'Tasa de acumulación (1/día)', kw: 'Coeficiente de lavado', n: 'Exponente de intensidad', Activo: 'Incluir en simulación' };
+                  var tips = { LW: 'Porcentaje de RDS < 250\u00b5m susceptible al transporte por escorrent\u00eda', ML: 'Porcentaje de metales pesados asociados a RDS < 250\u00b5m', LE: 'Porcentaje de lixiviaci\u00f3n de metales pesados (< 250\u00b5m)', Ler: 'Mediana de lixiviaci\u00f3n por metal', Bmax: 'Acumulaci\u00f3n m\u00e1xima de masa (mg/m\u00b2)', kb: 'Tasa de acumulaci\u00f3n (1/d\u00eda)', kw: 'Coeficiente de lavado', n: 'Exponente de intensidad' };
                   return ['Metal', 'LW', 'ML', 'LE', 'Ler', 'Bmax', 'kb', 'kw', 'n', 'Activo'].map(function (c) {
-                    return h('th', { key: c, title: tips[c] || '', className: 'px-2 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center cursor-help' },
-                      c, c !== 'Metal' && c !== 'Activo' ? h('span', { className: 'ml-0.5 text-blue-400 text-[8px]' }, '?') : null
-                    );
+                    if (tips[c]) {
+                      return h('th', { key: c, className: 'px-2 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center' },
+                        h('span', { className: 'ht-tip' }, c,
+                          h('span', { className: 'text-blue-400 text-[8px] ml-0.5' }, '?'),
+                          h('span', { className: 'ht-tip-text' }, tips[c])
+                        )
+                      );
+                    }
+                    return h('th', { key: c, className: 'px-2 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center' }, c);
                   });
                 })()
               )
