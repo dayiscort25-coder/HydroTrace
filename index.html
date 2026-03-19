@@ -68,6 +68,17 @@
     .dark p { color: #F8F9FA !important; }
     .dark .text-sm, .dark .text-xs, .dark .text-[11px], .dark .text-[10px], .dark .text-[9px] { color: inherit; }
 
+    /* Force light mode on login screens */
+    .login-force-light, .login-force-light * { color: revert; background-color: revert; border-color: revert; }
+    .login-force-light { background-color: #FAFBFD !important; color: #0f172a !important; }
+    .login-force-light h1, .login-force-light h2, .login-force-light h3 { color: #0f172a !important; }
+    .login-force-light p { color: #64748b !important; }
+    .login-force-light label { color: #1e293b !important; }
+    .login-force-light input { background-color: #ffffff !important; border-color: #e2e8f0 !important; color: #0f172a !important; }
+    .login-force-light input::placeholder { color: #94a3b8 !important; }
+    .login-force-light footer { color: #94a3b8 !important; }
+    .login-force-light button { color: inherit; }
+
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .animate-fadeIn { animation: fadeIn 0.5s ease-out; }
 
@@ -331,6 +342,8 @@
       // Mobile sidebar
       var _mob = _s(false), mobSidebar = _mob[0], setMobSidebar = _mob[1];
 
+      var _loadKey = _s(0), loadKey = _loadKey[0], setLoadKey = _loadKey[1];
+
       var handleLogin = function (userData) { setUser(userData); };
       var handleLogout = function () { window.sb.auth.signOut(); setUser(null); setCurrentPage('home'); };
       var handleRunScenario = function (params) { setPreloadedParams(params); setCurrentPage('single'); };
@@ -373,18 +386,28 @@
         var type = item.simulation_type;
         if (type === 'single') {
           setSingleState({
-            area: String(cfg.area || '5000'), material: cfg.material || 'Asfalto', coefC: String(cfg.coefC || '0.85'),
-            intensityVal: String(cfg.intensity || '35.5'), duration: String(cfg.duration || '1'), dryDays: String(cfg.dryDays || '5'),
-            slope: String(cfg.slope || '2.5'), simName: item.title || '', address: cfg.address || '',
+            area: String(cfg.area || '5000'), length: String(cfg.length || '100'), width: String(cfg.width || '50'),
+            material: cfg.material || 'Asfalto', coefC: String(cfg.coefC || '0.85'),
+            hydroMode: cfg.hydroMode || 'intensity',
+            intensityVal: String(cfg.intensity || '35.5'), precipVal: String(cfg.precipVal || '30'),
+            duration: String(cfg.duration || '1'), dryDays: String(cfg.dryDays || '5'),
+            slope: String(cfg.slope || '2.5'), pattern: cfg.pattern || 'variable',
+            simName: item.title || '', address: cfg.address || '',
+            metals: item.metals_used_data || null,
             results: item.results || null
           });
+          setLoadKey(function(k) { return k + 1; });
           setCurrentPage('single');
         } else {
           setMultiState({
-            area: String(cfg.area || '5000'), material: cfg.material || 'Asfalto', coefC: String(cfg.coefC || '0.85'),
+            area: String(cfg.area || '5000'),
+            material: cfg.material || 'Asfalto', coefC: String(cfg.coefC || '0.85'),
             simName: item.title || '', address: cfg.address || '',
+            metals: item.metals_used_data || null,
+            events: cfg.events || null,
             results: item.results || null
           });
+          setLoadKey(function(k) { return k + 1; });
           setCurrentPage('multi');
         }
       };
@@ -403,8 +426,8 @@
           h(window.Sidebar, { currentPage: currentPage, onNavigate: handleNavigate, user: user, onLogout: handleLogout, darkMode: darkMode, toggleDark: toggleDark })
         ),
         currentPage === 'home' && h(window.HomePage, { onNavigate: handleNavigate, onRunScenario: handleRunScenario, user: user }),
-        currentPage === 'single' && h(window.SingleSimulation, { preloadedParams: preloadedParams, savedState: singleState, onSaveState: setSingleState }),
-        currentPage === 'multi' && h(window.MultiSimulation, { savedState: multiState, onSaveState: setMultiState }),
+        currentPage === 'single' && h(window.SingleSimulation, { key: 'single-' + loadKey, preloadedParams: preloadedParams, savedState: singleState, onSaveState: setSingleState }),
+        currentPage === 'multi' && h(window.MultiSimulation, { key: 'multi-' + loadKey, savedState: multiState, onSaveState: setMultiState }),
         currentPage === 'historial' && h(HistorialPage, { user: user, onLoadSim: handleLoadSim }),
         currentPage === 'perfil' && h(ProfilePage, { user: user, onUpdateUser: handleUpdateUser, onNavigate: handleNavigate })
       );

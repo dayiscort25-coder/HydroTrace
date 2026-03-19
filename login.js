@@ -126,7 +126,7 @@ function LoginPage({ onLogin }) {
   };
 
   // ===== SHARED: Logo =====
-  var logoBlock = h('div', { className: 'flex items-center gap-3 mb-12' },
+  var logoBlock = h('div', { className: 'flex items-center gap-3 mb-6' },
     h('div', { className: 'w-11 h-11 bg-[#6287DE] flex items-center justify-center rounded-xl text-white shadow-lg' },
       h('svg', { width: 22, height: 22, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2 },
         h('path', { d: 'M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z' })
@@ -191,13 +191,13 @@ function LoginPage({ onLogin }) {
   // VIEW: LOGIN
   // =============================================
   if (view === 'login') {
-    return h('div', { className: 'flex h-screen w-full bg-[#FAFBFD]' },
+    return h('div', { className: 'flex h-screen w-full bg-[#FAFBFD] login-force-light' },
       // Left
       h('div', { className: 'w-full lg:w-1/2 flex flex-col justify-between p-8 lg:p-16 xl:p-20 relative z-10' },
         logoBlock,
         h('div', { className: 'max-w-md w-full mx-auto lg:mx-0 flex-1 flex flex-col justify-center' },
           h('h1', { className: 'text-slate-900 text-5xl font-black mb-3 leading-[1.1]', style: { letterSpacing: '-0.04em' } }, 'Bienvenido a', h('br'), 'HydroTrace'),
-          h('p', { className: 'text-slate-500 text-base mb-10 leading-relaxed' }, 'Simulación y análisis avanzado de escorrentía urbana y metales pesados.'),
+          h('p', { className: 'text-slate-500 text-base mb-6 leading-relaxed' }, 'Simulación y análisis avanzado de escorrentía urbana y metales pesados.'),
 
           h('form', { onSubmit: handleLogin, className: 'space-y-5' },
             msgBanner(error, true),
@@ -233,15 +233,15 @@ function LoginPage({ onLogin }) {
           ),
 
           // Divider + Google
-          h('div', { className: 'mt-8 flex items-center gap-4 text-slate-300' },
+          h('div', { className: 'mt-4 flex items-center gap-4 text-slate-300' },
             h('div', { className: 'h-px flex-1 bg-slate-200' }),
             h('span', { className: 'text-xs font-semibold uppercase tracking-widest text-slate-400' }, 'o'),
             h('div', { className: 'h-px flex-1 bg-slate-200' })
           ),
-          h('div', { className: 'mt-6' }, googleBtn)
+          h('div', { className: 'mt-3' }, googleBtn)
         ),
         // Footer
-        h('footer', { className: 'text-xs text-slate-400 mt-8' }, '© 2024 HydroTrace Technologies. Todos los derechos reservados.')
+        h('footer', { className: 'text-xs text-slate-400 mt-8' }, '© 2026 HydroTrace Technologies. Todos los derechos reservados.')
       ),
       // Right
       rightPanel
@@ -252,7 +252,7 @@ function LoginPage({ onLogin }) {
   // VIEW: REGISTER
   // =============================================
   if (view === 'register') {
-    return h('div', { className: 'flex h-screen w-full bg-[#FAFBFD]' },
+    return h('div', { className: 'flex h-screen w-full bg-[#FAFBFD] login-force-light' },
       h('div', { className: 'w-full lg:w-1/2 flex flex-col p-8 lg:p-16 xl:p-20 relative z-10 overflow-y-auto' },
         logoBlock,
         h('div', { className: 'max-w-md w-full mx-auto lg:mx-0' },
@@ -300,7 +300,7 @@ function LoginPage({ onLogin }) {
             )
           )
         ),
-        h('footer', { className: 'text-xs text-slate-400 mt-8' }, '© 2024 HydroTrace Technologies. Todos los derechos reservados.')
+        h('footer', { className: 'text-xs text-slate-400 mt-8' }, '© 2026 HydroTrace Technologies. Todos los derechos reservados.')
       ),
       rightPanel
     );
@@ -310,7 +310,7 @@ function LoginPage({ onLogin }) {
   // VIEW: RECOVER PASSWORD
   // =============================================
   if (view === 'recover') {
-    return h('div', { className: 'flex h-screen w-full bg-[#FAFBFD]' },
+    return h('div', { className: 'flex h-screen w-full bg-[#FAFBFD] login-force-light' },
       h('div', { className: 'w-full lg:w-1/2 flex flex-col p-8 lg:p-16 xl:p-20 relative z-10' },
         logoBlock,
         h('div', { className: 'max-w-md w-full mx-auto lg:mx-0 mt-8' },
@@ -334,7 +334,7 @@ function LoginPage({ onLogin }) {
           )
         ),
         h('div', { className: 'flex-1' }),
-        h('footer', { className: 'text-xs text-slate-400 mt-8' }, '© 2024 HydroTrace Technologies. Todos los derechos reservados.')
+        h('footer', { className: 'text-xs text-slate-400 mt-8' }, '© 2026 HydroTrace Technologies. Todos los derechos reservados.')
       ),
       rightPanel
     );

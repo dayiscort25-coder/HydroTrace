@@ -342,7 +342,14 @@ function MultiSimulation({ savedState, onSaveState }) {
           h('table', { className: 'w-full text-sm' },
             h('thead', null,
               h('tr', { className: 'bg-slate-50' },
-                ['Metal', 'LW', 'ML', 'LE', 'Ler', 'Bmax', 'kb', 'kw', 'n', 'Activo'].map(function (c) { return h('th', { key: c, className: 'px-2 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center' }, c); })
+                (function() {
+                  var tips = { Metal: 'Metal pesado analizado', LW: 'Porcentaje de RDS < 250µm susceptible al transporte por escorrentía', ML: 'Porcentaje de metales pesados asociados a RDS < 250µm', LE: 'Porcentaje de lixiviación de metales pesados (< 250µm)', Ler: 'Mediana de los valores de lixiviación por cada metal', Bmax: 'Acumulación máxima de masa (mg/m²)', kb: 'Tasa de acumulación (1/día)', kw: 'Coeficiente de lavado', n: 'Exponente de intensidad', Activo: 'Incluir en simulación' };
+                  return ['Metal', 'LW', 'ML', 'LE', 'Ler', 'Bmax', 'kb', 'kw', 'n', 'Activo'].map(function (c) {
+                    return h('th', { key: c, title: tips[c] || '', className: 'px-2 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center cursor-help' },
+                      c, c !== 'Metal' && c !== 'Activo' ? h('span', { className: 'ml-0.5 text-blue-400 text-[8px]' }, '?') : null
+                    );
+                  });
+                })()
               )
             ),
             h('tbody', null,
@@ -576,13 +583,25 @@ function MultiSimulation({ savedState, onSaveState }) {
                 doc.text('T\u00edtulo: ' + (simName || 'Sin nombre'), 14, y); y += 5;
                 if (eventAddress) { doc.text('Direcci\u00f3n: ' + eventAddress, 14, y); y += 5; }
                 doc.text('\u00c1rea: ' + area + ' m\u00b2  |  Material: ' + material + '  |  Eventos: ' + (results.nEvents || '-'), 14, y); y += 5;
-                doc.text('Metales: ' + (results.ml ? results.ml.join(', ') : '-'), 14, y); y += 10;
-                doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('Resultados Acumulados', 14, y); y += 7;
-                doc.setFontSize(9); doc.setTextColor(60);
-                if (results.cum && Array.isArray(results.cum)) {
-                  results.cum.forEach(function(ev, idx) {
-                    var vol = ev && ev.vol != null ? ev.vol.toFixed(2) : '0';
-                    doc.text('Evento ' + (idx + 1) + ': Vol=' + vol + ' m\u00b3', 14, y); y += 5;
+                doc.text('Metales: ' + (results.ml ? results.ml.join(', ') : '-'), 14, y); y += 5;
+                doc.text('Vol. Total: ' + (results.totalVol != null ? results.totalVol.toFixed(2) : '-') + ' m\u00b3  |  Q M\u00e1x: ' + (results.maxQ != null ? (results.maxQ * 1000).toFixed(2) : '-') + ' L/s', 14, y); y += 10;
+                // TLW per metal
+                if (results.tlw_r) {
+                  doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('An\u00e1lisis TLW por Metal', 14, y); y += 7;
+                  doc.setFontSize(9); doc.setTextColor(60);
+                  Object.keys(results.tlw_r).forEach(function(m) {
+                    var t = results.tlw_r[m];
+                    if (t) { doc.text(m + ':  T1=' + (t.T1 != null ? t.T1.toFixed(3) : '-') + '  T2=' + (t.T2 != null ? t.T2.toFixed(3) : '-') + '  T3=' + (t.T3 != null ? t.T3.toFixed(3) : '-') + '  TLW=' + (t.TLW != null ? t.TLW.toFixed(3) : '-') + '%', 14, y); y += 5; }
+                    if (y > 270) { doc.addPage(); y = 20; }
+                  });
+                  y += 5;
+                }
+                // Event table
+                if (results.et && Array.isArray(results.et)) {
+                  doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('Resultados por Evento', 14, y); y += 7;
+                  doc.setFontSize(8); doc.setTextColor(60);
+                  results.et.forEach(function(ev, idx) {
+                    doc.text('Ev' + (idx + 1) + ': I=' + (ev.I || '-') + ' mm/h  Dur=' + (ev.dur || '-') + 'h  DS=' + (ev.ds || '-') + 'd  Vol=' + (ev.vol != null ? ev.vol.toFixed(2) : '-') + ' m\u00b3  Q=' + (ev.Qp != null ? (ev.Qp * 1000).toFixed(2) : '-') + ' L/s', 14, y); y += 4;
                     if (y > 270) { doc.addPage(); y = 20; }
                   });
                 }
@@ -599,14 +618,22 @@ function MultiSimulation({ savedState, onSaveState }) {
             onClick: function() {
               try {
                 var wb = XLSX.utils.book_new();
-                var params = [['Par\u00e1metro', 'Valor'], ['T\u00edtulo', simName || '-'], ['Direcci\u00f3n', eventAddress || '-'], ['\u00c1rea (m\u00b2)', area], ['Material', material], ['Eventos', results.nEvents || '-'], ['Metales', results.ml ? results.ml.join(', ') : '-']];
+                var params = [['Par\u00e1metro', 'Valor'], ['T\u00edtulo', simName || '-'], ['Direcci\u00f3n', eventAddress || '-'], ['\u00c1rea (m\u00b2)', area], ['Material', material], ['Eventos', results.nEvents || '-'], ['Metales', results.ml ? results.ml.join(', ') : '-'], ['Vol. Total (m\u00b3)', results.totalVol != null ? results.totalVol.toFixed(2) : '-'], ['Q M\u00e1x (L/s)', results.maxQ != null ? (results.maxQ * 1000).toFixed(2) : '-']];
                 var ws1 = XLSX.utils.aoa_to_sheet(params);
                 XLSX.utils.book_append_sheet(wb, ws1, 'Par\u00e1metros');
-                if (results.cum && Array.isArray(results.cum)) {
-                  var cumRows = [['Evento', 'Volumen (m\u00b3)']];
-                  results.cum.forEach(function(ev, idx) { cumRows.push([idx + 1, ev && ev.vol != null ? ev.vol : 0]); });
-                  var ws2 = XLSX.utils.aoa_to_sheet(cumRows);
-                  XLSX.utils.book_append_sheet(wb, ws2, 'Resultados');
+                // TLW sheet
+                if (results.tlw_r) {
+                  var tlwRows = [['Metal', 'T1', 'T2', 'T3', 'TLW (%)']];
+                  Object.keys(results.tlw_r).forEach(function(m) { var t = results.tlw_r[m]; if (t) { tlwRows.push([m, t.T1, t.T2, t.T3, t.TLW]); } });
+                  var ws2 = XLSX.utils.aoa_to_sheet(tlwRows);
+                  XLSX.utils.book_append_sheet(wb, ws2, 'TLW');
+                }
+                // Events sheet
+                if (results.et && Array.isArray(results.et)) {
+                  var evRows = [['Evento', 'Intensidad (mm/h)', 'Duraci\u00f3n (h)', 'D\u00edas Secos', 'Volumen (m\u00b3)', 'Caudal (L/s)']];
+                  results.et.forEach(function(ev, idx) { evRows.push([idx + 1, ev.I || '-', ev.dur || '-', ev.ds || '-', ev.vol != null ? ev.vol : 0, ev.Qp != null ? ev.Qp * 1000 : 0]); });
+                  var ws3 = XLSX.utils.aoa_to_sheet(evRows);
+                  XLSX.utils.book_append_sheet(wb, ws3, 'Eventos');
                 }
                 XLSX.writeFile(wb, 'HydroTrace_Multi_' + (simName || 'Reporte').replace(/\s+/g, '_') + '.xlsx');
               } catch(e) { alert('Error al generar Excel: ' + e.message); }

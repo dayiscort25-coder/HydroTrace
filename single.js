@@ -259,7 +259,14 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
           h('table', { className: 'w-full text-sm' },
             h('thead', null,
               h('tr', { className: 'bg-slate-50' },
-                ['Metal', 'LW', 'ML', 'LE', 'Ler', 'Bmax', 'kb', 'kw', 'n', 'Activo'].map(function (c) { return h('th', { key: c, className: 'px-2 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center' }, c); })
+                (function() {
+                  var tips = { Metal: 'Metal pesado analizado', LW: 'Porcentaje de RDS < 250µm susceptible al transporte por escorrentía', ML: 'Porcentaje de metales pesados asociados a RDS < 250µm', LE: 'Porcentaje de lixiviación de metales pesados (< 250µm)', Ler: 'Mediana de los valores de lixiviación por cada metal', Bmax: 'Acumulación máxima de masa (mg/m²)', kb: 'Tasa de acumulación (1/día)', kw: 'Coeficiente de lavado', n: 'Exponente de intensidad', Activo: 'Incluir en simulación' };
+                  return ['Metal', 'LW', 'ML', 'LE', 'Ler', 'Bmax', 'kb', 'kw', 'n', 'Activo'].map(function (c) {
+                    return h('th', { key: c, title: tips[c] || '', className: 'px-2 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center cursor-help' },
+                      c, c !== 'Metal' && c !== 'Activo' ? h('span', { className: 'ml-0.5 text-blue-400 text-[8px]' }, '?') : null
+                    );
+                  });
+                })()
               )
             ),
             h('tbody', null,

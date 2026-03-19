@@ -142,11 +142,11 @@ function HomePage({ onNavigate, onRunScenario, user }) {
               s.source === 'history' && h('div', { className: 'absolute top-3 right-3 bg-white/80 text-[#3B82F6] text-[8px] font-bold px-2 py-0.5 rounded-full shadow-sm' }, 'HISTORIAL'),
               // Emoji on TOP, title BELOW
               h('div', { className: 'w-12 h-12 rounded-xl flex items-center justify-center text-2xl mb-3 mx-auto', style: { backgroundColor: cs.icon } }, s.icon),
-              h('h3', { className: 'font-bold text-slate-900 text-sm leading-tight text-center mb-4' }, shortName),
-              h('div', { className: 'text-[11px] text-slate-500 space-y-1.5 mb-4' },
-                h('div', { className: 'flex justify-between' }, h('span', null, 'Duración:'), h('span', { className: 'font-medium text-slate-700' }, s.duration)),
-                h('div', { className: 'flex justify-between' }, h('span', null, s.source === 'history' ? 'Metales:' : 'Intensidad:'), h('span', { className: 'font-medium text-slate-700' }, s.source === 'history' ? s.metals : s.intensity)),
-                s.date && h('div', { className: 'flex justify-between' }, h('span', null, 'Fecha:'), h('span', { className: 'font-medium text-slate-700' }, s.date))
+              h('h3', { className: 'font-bold text-sm leading-tight text-center mb-4', style: { color: '#1e293b' } }, shortName),
+              h('div', { className: 'text-[11px] space-y-1.5 mb-4', style: { color: '#475569' } },
+                h('div', { className: 'flex justify-between' }, h('span', null, 'Duración:'), h('span', { className: 'font-medium', style: { color: '#1e293b' } }, s.duration)),
+                h('div', { className: 'flex justify-between' }, h('span', null, s.source === 'history' ? 'Metales:' : 'Intensidad:'), h('span', { className: 'font-medium', style: { color: '#1e293b' } }, s.source === 'history' ? s.metals : s.intensity)),
+                s.date && h('div', { className: 'flex justify-between' }, h('span', null, 'Fecha:'), h('span', { className: 'font-medium', style: { color: '#1e293b' } }, s.date))
               ),
               h('button', { onClick: function() { onRunScenario(s.params); }, className: 'w-full py-2 rounded-lg text-xs font-semibold transition-colors text-white', style: { backgroundColor: cs.btn } }, s.source === 'history' ? 'Reejecutar' : 'Ejecutar Escenario')
             );
