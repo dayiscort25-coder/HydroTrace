@@ -484,7 +484,7 @@ function MultiSimulation({ savedState, onSaveState }) {
             h('table', { className: 'w-full text-sm' },
               h('thead', null,
                 h('tr', { className: 'bg-gradient-to-r from-[#6D28D9] to-[#8B5CF6] text-white' },
-                  ['Evento', 'I(mm/h)', 'D.Secos', 'Dur(min)'].concat(results.ml.map(function (m) { return m + ' Carga(g)'; })).concat(results.ml.map(function (m) { return m + ' Efic%'; })).map(function (c) { return h('th', { key: c, className: 'px-2 py-2 text-[10px] font-bold text-center whitespace-nowrap' }, c); })
+                  ['Evento', 'I(mm/h)', 'D.Secos', 'Dur(min)'].concat(results.ml.map(function (m) { return m + ' T1'; })).concat(results.ml.map(function (m) { return m + ' T2'; })).concat(results.ml.map(function (m) { return m + ' T3'; })).concat(results.ml.map(function (m) { return m + ' TLW%'; })).concat(results.ml.map(function (m) { return m + ' Carga(g)'; })).concat(results.ml.map(function (m) { return m + ' Efic%'; })).map(function (c) { return h('th', { key: c, className: 'px-2 py-2 text-[10px] font-bold text-center whitespace-nowrap' }, c); })
                 )
               ),
               h('tbody', null,
@@ -494,6 +494,10 @@ function MultiSimulation({ savedState, onSaveState }) {
                     h('td', { className: 'px-2 py-1.5 text-center' }, row.I),
                     h('td', { className: 'px-2 py-1.5 text-center' }, row.Dias_secos),
                     h('td', { className: 'px-2 py-1.5 text-center' }, row.Dur_min),
+                    results.ml.map(function (m) { var t = results.tlw_r && results.tlw_r[m]; return h('td', { key: m + 't1', className: 'px-2 py-1.5 text-center text-[11px]' }, t ? t.T1.toFixed(3) : '-'); }),
+                    results.ml.map(function (m) { var t = results.tlw_r && results.tlw_r[m]; return h('td', { key: m + 't2', className: 'px-2 py-1.5 text-center text-[11px]' }, t ? t.T2.toFixed(3) : '-'); }),
+                    results.ml.map(function (m) { var t = results.tlw_r && results.tlw_r[m]; return h('td', { key: m + 't3', className: 'px-2 py-1.5 text-center text-[11px]' }, t ? t.T3.toFixed(3) : '-'); }),
+                    results.ml.map(function (m) { var t = results.tlw_r && results.tlw_r[m]; return h('td', { key: m + 'tlw', className: 'px-2 py-1.5 text-center font-bold text-[11px]' }, t ? t.TLW.toFixed(3) + '%' : '-'); }),
                     results.ml.map(function (m) { return h('td', { key: m + 'c', className: 'px-2 py-1.5 text-center' }, (row[m + '_cg'] || 0).toFixed(6)); }),
                     results.ml.map(function (m) {
                       return h('td', { key: m + 'e', className: 'px-2 py-1.5 text-center' },
