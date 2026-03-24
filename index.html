@@ -346,7 +346,34 @@
 
       var handleLogin = function (userData) { setUser(userData); };
       var handleLogout = function () { window.sb.auth.signOut(); setUser(null); setCurrentPage('home'); };
-      var handleRunScenario = function (params) { setPreloadedParams(params); setCurrentPage('single'); };
+      var handleRunScenario = function (params) {
+        if (params.simulationType === 'multi') {
+          setMultiState({
+            area: String(params.area || '5000'), material: params.material || 'Asfalto', coefC: String(params.coefC || '0.85'),
+            simName: params.title || '', address: params.address || '',
+            metals: params.metals_used_data || null,
+            events: params.events || null,
+            results: params.results || null
+          });
+          setLoadKey(function(k) { return k + 1; });
+          setCurrentPage('multi');
+        } else {
+          setSingleState({
+            area: String(params.area || '5000'), length: String(params.length || '100'), width: String(params.width || '50'),
+            material: params.material || 'Asfalto', coefC: String(params.coefC || '0.85'),
+            hydroMode: params.hydroMode || 'intensity',
+            intensityVal: String(params.intensity || '35.5'), precipVal: String(params.precipVal || '30'),
+            duration: String(params.duration || '1'), dryDays: String(params.dryDays || '5'),
+            slope: String(params.slope || '2.5'), pattern: params.pattern || 'variable',
+            simName: params.title || '', address: params.address || '',
+            metals: params.metals_used_data || null,
+            results: params.results || null
+          });
+          setLoadKey(function(k) { return k + 1; });
+          setPreloadedParams(params);
+          setCurrentPage('single');
+        }
+      };
       var handleNavigate = function (page) { if (page !== 'single') setPreloadedParams(null); setCurrentPage(page); setMobSidebar(false); };
       var handleUpdateUser = function (updates) { setUser(Object.assign({}, user, updates)); };
 

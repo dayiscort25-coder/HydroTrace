@@ -44,7 +44,18 @@ function HomePage({ onNavigate, onRunScenario, user }) {
       intensity: cfg.intensity ? cfg.intensity + ' mm/h' : '-',
       metals: (item.metals_used || []).join(', ') || '-',
       icon: item.simulation_type === 'multi' ? '📊' : '🔬',
-      params: { intensity: cfg.intensity || 30, duration: cfg.duration || 1, dryDays: cfg.dryDays || 5 },
+      params: {
+        simulationType: item.simulation_type || 'single',
+        intensity: cfg.intensity || 30, duration: cfg.duration || 1, dryDays: cfg.dryDays || 5,
+        area: cfg.area || 5000, material: cfg.material || 'Asfalto', coefC: cfg.coefC || 0.85,
+        slope: cfg.slope || 2.5, length: cfg.length || 100, width: cfg.width || 50,
+        title: item.title || '', address: cfg.address || '',
+        metals_used_data: item.metals_used_data || null,
+        events: cfg.events || null,
+        results: item.results || null,
+        hydroMode: cfg.hydroMode || 'intensity', precipVal: cfg.precipVal || 30,
+        pattern: cfg.pattern || 'variable'
+      },
       source: 'history',
       date: new Date(item.created_at).toLocaleDateString('es-CO')
     };
