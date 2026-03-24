@@ -213,8 +213,7 @@ function LoginPage({ onLogin }) {
             // Password
             h('div', { className: 'space-y-2' },
               h('div', { className: 'flex justify-between items-center' },
-                h('label', { className: 'text-slate-800 text-xs font-bold uppercase tracking-wider' }, 'Contraseña'),
-                h('button', { type: 'button', onClick: function () { setView('recover'); setError(''); }, className: 'text-[#6287DE] text-xs font-bold hover:underline' }, '¿Olvidó su contraseña?')
+                h('label', { className: 'text-slate-800 text-xs font-bold uppercase tracking-wider' }, 'Contraseña')
               ),
               fieldInput(showPass ? 'text' : 'password', password, setPassword, '••••••••',
                 eyeIcon(showPass, function () { setShowPass(!showPass); })

@@ -255,7 +255,7 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
           h('h3', { className: 'font-bold text-slate-900' }, 'Metales a simular'),
           h('button', { onClick: resetMetals, className: 'text-sm text-orange-600 font-semibold hover:underline' }, 'Restaurar valores')
         ),
-        h('div', { className: 'overflow-x-auto' },
+        h('div', { className: 'overflow-visible' },
           h('table', { className: 'w-full text-sm' },
             h('thead', null,
               h('tr', { className: 'bg-slate-50' },

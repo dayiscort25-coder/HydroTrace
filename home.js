@@ -138,7 +138,7 @@ function HomePage({ onNavigate, onRunScenario, user }) {
           visibleScenarios.map(function(s, i) {
             var cs = cardStyles[(carouselIdx + i) % cardStyles.length];
             var shortName = s.name.length > 35 ? s.name.substring(0, 33) + '...' : s.name;
-            return h('div', { key: carouselIdx + '-' + i, className: 'rounded-xl p-5 hover:shadow-lg transition-all relative animate-fadeIn', style: { backgroundColor: cs.bg, border: '2px solid ' + cs.border } },
+            return h('div', { key: carouselIdx + '-' + i, className: 'sc-card rounded-xl p-5 hover:shadow-lg transition-all relative animate-fadeIn', style: { backgroundColor: cs.bg, border: '2px solid ' + cs.border } },
               s.source === 'history' && h('div', { className: 'absolute top-3 right-3 bg-white/80 text-[#3B82F6] text-[8px] font-bold px-2 py-0.5 rounded-full shadow-sm' }, 'HISTORIAL'),
               // Emoji on TOP, title BELOW
               h('div', { className: 'w-12 h-12 rounded-xl flex items-center justify-center text-2xl mb-3 mx-auto', style: { backgroundColor: cs.icon } }, s.icon),
