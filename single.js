@@ -30,6 +30,7 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
   var _sn = _s(init.simName || ''), simName = _sn[0], setSimName = _sn[1];
   var _sm = _s(''), saveMsg = _sm[0], setSaveMsg = _sm[1];
   var _addr = _s(init.address || ''), eventAddress = _addr[0], setEventAddress = _addr[1];
+  var _err = _s(null), execError = _err[0], setExecError = _err[1];
 
   var defaultMetals = Object.entries(E.DM).map(function (e) { return { name: e[0], LW: String(e[1].LW), ML: String(e[1].ML), LE: String(e[1].LE), Ler: String(e[1].Ler), Bmax: String(e[1].Bmax), kb: String(e[1].kb), kw: String(e[1].kw), n: String(e[1].n), active: true }; });
   var _met = _s(init.metals || defaultMetals), metals = _met[0], setMetals = _met[1];
@@ -84,6 +85,8 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
 
   var runSimulation = function () {
     setRunning(true);
+    setExecError(null);
+    setResults(null);
     setTimeout(function () {
       try {
         var A = parseFloat(area) || 5000;
@@ -155,7 +158,7 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
           tlw: tlw, B0: B0, wd: wd, imp: imp, dm: dm, fraccion: fraccion, riesgo: riesgo, ms: ms, activeMetals: activeMetals,
           washData: washData, rateData: rateData, cumData: cumData, hietoData: hietoData, Qa: Qa, buData: buData, tlwBarData: tlwBarData, impBar: impBar, pieData: pieData
         });
-      } catch (e) { console.error(e); }
+      } catch (e) { console.error(e); setExecError('Error en simulación: ' + (e.message || String(e))); }
       setRunning(false);
     }, 600);
   };
@@ -307,8 +310,17 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
         )
       ),
 
+      // ERROR BANNER
+      execError && h('div', { className: 'bg-red-50 border border-red-300 rounded-xl p-4 mt-4 animate-fadeIn' },
+        h('div', { className: 'flex items-center gap-2 mb-1' },
+          h('span', { className: 'text-red-600 text-lg' }, '⚠️'),
+          h('h3', { className: 'font-bold text-red-800 text-sm' }, 'Error en la simulación')
+        ),
+        h('p', { className: 'text-red-700 text-xs font-mono break-all' }, execError)
+      ),
+
       // RESULTS
-      results && h('div', { className: 'space-y-6 animate-fadeIn' },
+      results && results.ms && h('div', { className: 'space-y-6 animate-fadeIn' },
         h('div', { className: 'flex items-center gap-3 mt-4' },
           h('div', { className: 'w-1 h-8 bg-[#3B82F6] rounded' }),
           h('h2', { className: 'text-xl font-bold text-slate-900' }, 'Resultados de Simulación'),

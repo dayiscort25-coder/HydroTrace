@@ -353,7 +353,7 @@
             simName: params.title || '', address: params.address || '',
             metals: params.metals_used_data || null,
             events: params.events || null,
-            results: params.results || null
+            results: null
           });
           setLoadKey(function(k) { return k + 1; });
           setCurrentPage('multi');
@@ -367,7 +367,7 @@
             slope: String(params.slope || '2.5'), pattern: params.pattern || 'variable',
             simName: params.title || '', address: params.address || '',
             metals: params.metals_used_data || null,
-            results: params.results || null
+            results: null
           });
           setLoadKey(function(k) { return k + 1; });
           setPreloadedParams(params);

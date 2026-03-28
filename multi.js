@@ -22,6 +22,7 @@ function MultiSimulation({ savedState, onSaveState }) {
   var _sn = _s(init.simName || ''), simName = _sn[0], setSimName = _sn[1];
   var _sm2 = _s(''), saveMsg = _sm2[0], setSaveMsg = _sm2[1];
   var _addr = _s(init.address || ''), eventAddress = _addr[0], setEventAddress = _addr[1];
+  var _err = _s(null), execError = _err[0], setExecError = _err[1];
 
   var _ev = _s(init.events || [
     { id: 1, type: 'Intensidad', value: '12.5', duration: '1', pattern: 'Uniforme', slope: '2.0', dryDays: '3' },
@@ -150,6 +151,8 @@ function MultiSimulation({ savedState, onSaveState }) {
 
   var runSimulation = function () {
     setRunning(true);
+    setExecError(null);
+    setResults(null);
     setTimeout(function () {
       try {
         var A = parseFloat(area) || 5000;
@@ -240,7 +243,7 @@ function MultiSimulation({ savedState, onSaveState }) {
         var loadBar = ml.map(function (m) { return { name: m, load: +cum[m].toFixed(4), fill: MC[m] || '#6B7280' }; });
 
         setResults({ ml: ml, act: act, tlw_r: tlw_r, et: et, massChartData: massChartData, cumChartData: cumChartData, cum: cum, mass: mass, A: A, totalVol: totalVol, maxQ: maxQ, cd: cd, nEvents: events.length, tlwBar: tlwBar, loadBar: loadBar });
-      } catch (e) { console.error(e); }
+      } catch (e) { console.error(e); setExecError('Error en simulación multieventos: ' + (e.message || String(e))); }
       setRunning(false);
     }, 500);
   };
@@ -392,8 +395,17 @@ function MultiSimulation({ savedState, onSaveState }) {
         )
       ),
 
+      // ERROR BANNER
+      execError && h('div', { className: 'bg-red-50 border border-red-300 rounded-xl p-4 mt-4 animate-fadeIn' },
+        h('div', { className: 'flex items-center gap-2 mb-1' },
+          h('span', { className: 'text-red-600 text-lg' }, '⚠️'),
+          h('h3', { className: 'font-bold text-red-800 text-sm' }, 'Error en la simulación')
+        ),
+        h('p', { className: 'text-red-700 text-xs font-mono break-all' }, execError)
+      ),
+
       // RESULTS
-      results && h('div', { className: 'space-y-6 animate-fadeIn' },
+      results && results.ml && results.et && h('div', { className: 'space-y-6 animate-fadeIn' },
         h('div', { className: 'flex items-center gap-3' },
           h('div', { className: 'w-1 h-8 bg-[#6D28D9] rounded' }),
           h('h2', { className: 'text-xl font-bold text-slate-900' }, 'Resultados Multieventos'),
