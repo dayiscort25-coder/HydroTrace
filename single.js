@@ -154,7 +154,7 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
         var pieData = [{ name: 'Sólida', value: +ts_s.toFixed(2) }, { name: 'Disuelta', value: +td_s.toFixed(2) }];
 
         setResults({
-          Qp: hr.Qp, Vt: hr.Vt, tc: hr.tc, A: A, Ip: Ip, slopeD: slopeD, dd: dd, durH: durH, C: C, Lc: Lc,
+          Qp: hr.Qp, Vt: hr.Vt, A: A, Ip: Ip, slopeD: slopeD, dd: dd, durH: durH, C: C, Lc: Lc,
           tlw: tlw, B0: B0, wd: wd, imp: imp, dm: dm, fraccion: fraccion, riesgo: riesgo, ms: ms, activeMetals: activeMetals,
           washData: washData, rateData: rateData, cumData: cumData, hietoData: hietoData, Qa: Qa, buData: buData, tlwBarData: tlwBarData, impBar: impBar, pieData: pieData
         });
@@ -334,7 +334,7 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
             { label: 'INTENSIDAD', value: results.Ip.toFixed(1) + ' mm/h' },
             { label: 'VOL. ESCORRENTÍA', value: results.Vt.toFixed(4) + ' m³' },
             { label: 'CAUDAL PICO', value: (results.Qp * 1000).toFixed(4) + ' L/s' },
-            { label: 'TIEMPO CONC. (tc)', value: results.tc.toFixed(2) + ' min' },
+
             { label: 'METAL DOMINANTE', value: results.dm, hl: true },
             { label: 'FRACCIÓN', value: results.fraccion },
             { label: 'NIVEL DE RIESGO', value: results.riesgo, badge: results.riesgo === 'ALTO' ? 'bg-red-100 text-red-700' : results.riesgo === 'MEDIO' ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700' }
@@ -467,7 +467,7 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
         // CHART 5: Hidrograma
         h('div', { className: 'bg-white rounded-xl border border-slate-200 p-5' },
           h('h3', { className: 'font-bold text-slate-900 mb-2' }, 'Gráfica 5: Hidrograma — Respuesta hidrológica'),
-          h('p', { className: 'text-xs text-slate-500 mb-3' }, 'Panel superior: hietograma invertido (distribución de lluvia en el tiempo). Panel inferior: caudal (L/s) generado por la escorrentía. Calculado mediante el método racional: Q = C·I·A/3,600,000 y tc = 0.0195·L⁰·⁷⁷·S⁻⁰·³⁸⁵'),
+          h('p', { className: 'text-xs text-slate-500 mb-3' }, 'Panel superior: hietograma invertido (distribución de lluvia en el tiempo). Panel inferior: caudal (L/s) generado por la escorrentía. Calculado mediante el método racional: Q = C·I·A/3,600,000'),
           h('div', { className: 'grid grid-cols-1 gap-2' },
             ResponsiveContainer && h(ResponsiveContainer, { width: '100%', height: 150 },
               h(AreaChart, { data: results.hietoData },
@@ -586,16 +586,14 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
             // Step 2
             h('div', { className: 'bg-green-50 rounded-lg p-4 border-l-4 border-green-500' },
               h('h4', { className: 'font-bold text-green-700 mb-1' }, 'Etapa 2: Hidrología — Respuesta de la cuenca'),
-              h('p', { className: 'text-xs text-slate-500 mb-2 italic' }, 'Objetivo: Calcular el caudal pico, el volumen total de escorrentía y el tiempo de concentración de la cuenca ante el evento de lluvia definido.'),
+              h('p', { className: 'text-xs text-slate-500 mb-2 italic' }, 'Objetivo: Calcular el caudal pico y el volumen total de escorrentía de la cuenca ante el evento de lluvia definido.'),
               h('div', { className: 'bg-white rounded p-3 font-mono text-xs space-y-1 border border-green-200' },
                 h('div', null, 'Caudal pico: Q = C × I × A / 3,600,000  (m³/s)'),
-                h('div', null, 'Volumen: V = C × (I/1000) × A × duración  (m³)'),
-                h('div', null, 'Tiempo concentración: tc = 0.0195 × L⁰·⁷⁷ × S⁻⁰·³⁸⁵  (min)')
+                h('div', null, 'Volumen: V = C × (I/1000) × A × duración  (m³)')
               ),
               results && h('p', { className: 'mt-2 text-xs' },
                 'Q = ' + results.C + ' × ' + results.Ip.toFixed(1) + ' × ' + results.A + ' / 3600000 = ', h('b', null, (results.Qp * 1000).toFixed(4) + ' L/s'),
-                ' | V = ', h('b', null, results.Vt.toFixed(4) + ' m³'),
-                ' | tc = ', h('b', null, results.tc.toFixed(2) + ' min')
+                ' | V = ', h('b', null, results.Vt.toFixed(4) + ' m³')
               )
             ),
             // Step 3
@@ -688,8 +686,7 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
                   doc.setFontSize(9); doc.setTextColor(60);
                   var qp = results.Qp != null ? (results.Qp * 1000).toFixed(4) : '-';
                   var vt = results.Vt != null ? results.Vt.toFixed(4) : '-';
-                  var tcv = results.tc != null ? results.tc.toFixed(2) : '-';
-                  doc.text('Caudal pico: ' + qp + ' L/s  |  Volumen: ' + vt + ' m\u00b3  |  tc: ' + tcv + ' min', 14, y); y += 10;
+                  doc.text('Caudal pico: ' + qp + ' L/s  |  Volumen: ' + vt + ' m\u00b3', 14, y); y += 10;
                   // TLW Table
                   doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('An\u00e1lisis TLW por Metal', 14, y); y += 7;
                   doc.setFontSize(9); doc.setTextColor(60);

@@ -242,9 +242,6 @@ $$V_t = C \times \frac{I}{1000} \times A \times D \quad [m^3]$$
 
 Donde $D$ es la duración en horas.
 
-**Tiempo de concentración (Kirpich):**
-
-$$t_c = 0.0195 \times L^{0.77} \times S^{-0.385} \quad [min]$$
 
 #### 3.2.6 Concentración de Contaminantes
 
@@ -343,7 +340,7 @@ El sistema clasifica automáticamente el riesgo según el TLW del metal dominant
 
 **PDF:**
 - Parámetros de entrada (título, dirección, área, material, etc.)
-- Resultados hidrológicos (Qp, Vt, tc)
+- Resultados hidrológicos (Qp, Vt)
 - Tabla TLW por metal (T1, T2, T3, TLW%)
 - Tabla de concentraciones (Carga mg, Conc. mg/L)
 - Capturas de las gráficas (generadas con html2canvas)
