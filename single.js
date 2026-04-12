@@ -112,8 +112,7 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
           B0[m.name] = E.buildUp(p.Bmax, p.kb, dd);
           var w = E.washoffDynamic(B0[m.name], p.kw, p.n, ser.t, ser.I);
           wd[m.name] = { Brem: w.Brem, Wrate: w.Wrate, Wcum: w.Wcum, total: w.Wcum[w.Wcum.length - 1], eff: B0[m.name] > 0 ? w.Wcum[w.Wcum.length - 1] / B0[m.name] * 100 : 0 };
-          var VL = hr.Vt * 1000;
-          imp[m.name] = { load_mg: (tlw[m.name].TLW / 100) * B0[m.name] * A, conc: VL > 0 ? (tlw[m.name].TLW / 100) * B0[m.name] * A / VL : 0 };
+          imp[m.name] = { load_mg: (tlw[m.name].TLW / 100) * B0[m.name] * A };
         });
 
         var ms = activeMetals.map(function (m) { return m.name; });
@@ -620,10 +619,9 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
             // Step 5
             h('div', { className: 'bg-red-50 rounded-lg p-4 border-l-4 border-red-500' },
               h('h4', { className: 'font-bold text-red-700 mb-1' }, 'Etapa 5: Impacto Ambiental'),
-              h('p', { className: 'text-xs text-slate-500 mb-2 italic' }, 'Objetivo: Calcular la carga total de contaminantes movilizados y su concentración media en el volumen de escorrentía generado.'),
+              h('p', { className: 'text-xs text-slate-500 mb-2 italic' }, 'Objetivo: Calcular la carga total de contaminantes movilizados por la escorrentía.'),
               h('div', { className: 'bg-white rounded p-3 font-mono text-xs border border-red-200 space-y-1' },
-                h('div', null, 'Carga (mg) = (TLW / 100) × B₀ × Área'),
-                h('div', null, 'Concentración (mg/L) = Carga (mg) / Volumen (litros)')
+                h('div', null, 'Carga (mg) = (TLW / 100) × B₀ × Área')
               )
             )
           )
@@ -635,7 +633,7 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
             { step: '1', title: 'Acumulación', desc: 'Cálculo de masa acumulada previa mediante modelos exponenciales basados en días secos.' },
             { step: '2', title: 'Escorrentía', desc: 'Modelado hidrológico mediante el método racional para determinar caudal pico y volúmenes.' },
             { step: '3', title: 'Lavado (Wash-off)', desc: 'Simulación de la cinética de transporte en función de la intensidad del evento.' },
-            { step: '4', title: 'Impacto Final', desc: 'Integración de cargas totales y determinación de concentraciones medias.' },
+            { step: '4', title: 'Impacto Final', desc: 'Integración de cargas totales movilizadas por la escorrentía.' },
           ].map(function (s) {
             return h('div', { key: s.step, className: 'bg-white rounded-xl border border-slate-200 p-4' },
               h('div', { className: 'w-8 h-8 bg-[#3B82F6] rounded-lg flex items-center justify-center text-white font-bold text-sm mb-3' }, s.step),
@@ -699,20 +697,19 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
                       if (t) { doc.text(m + ':  T1=' + (t.T1 != null ? t.T1.toFixed(3) : '-') + '  T2=' + (t.T2 != null ? t.T2.toFixed(3) : '-') + '  T3=' + (t.T3 != null ? t.T3.toFixed(3) : '-') + '  TLW=' + (t.TLW != null ? t.TLW.toFixed(3) : '-') + '%', 14, y); y += 5; }
                     });
                   }
-                  // Concentrations
-                  y += 5; doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('Concentraciones e Impacto Ambiental', 14, y); y += 7;
+                  // Impacto Ambiental
+                  y += 5; doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('Impacto Ambiental', 14, y); y += 7;
                   doc.setFontSize(9); doc.setTextColor(60);
                   doc.text('Metal dominante: ' + (results.dm || '-') + '  |  Nivel de riesgo: ' + (results.riesgo || '-'), 14, y); y += 6;
                   if (results.ms && results.imp) {
                     doc.setFontSize(8);
-                    doc.text('Metal          Carga (mg)     Conc. (mg/L)', 14, y); y += 4;
-                    doc.line(14, y, 100, y); y += 3;
+                    doc.text('Metal          Carga (mg)', 14, y); y += 4;
+                    doc.line(14, y, 80, y); y += 3;
                     results.ms.forEach(function(m) {
                       var imp = results.imp[m];
                       if (imp) {
                         var load = imp.load_mg != null ? imp.load_mg.toFixed(4) : '-';
-                        var conc = imp.conc_mgL != null ? imp.conc_mgL.toFixed(6) : '-';
-                        doc.text(m.padEnd(15) + load.padStart(12) + conc.padStart(15), 14, y); y += 4;
+                        doc.text(m.padEnd(15) + load.padStart(12), 14, y); y += 4;
                       }
                     });
                   }
@@ -755,8 +752,8 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
                   XLSX.utils.book_append_sheet(wb, ws2, 'TLW');
                 }
                 if (results.ms && results.imp) {
-                  var impRows = [['Metal', 'Carga (mg)', 'Conc (mg/L)']];
-                  results.ms.forEach(function(m) { var imp = results.imp[m]; if (imp) { impRows.push([m, imp.load_mg, imp.conc_mgL]); } });
+                  var impRows = [['Metal', 'Carga (mg)']];
+                  results.ms.forEach(function(m) { var imp = results.imp[m]; if (imp) { impRows.push([m, imp.load_mg]); } });
                   var ws3 = XLSX.utils.aoa_to_sheet(impRows);
                   XLSX.utils.book_append_sheet(wb, ws3, 'Impacto');
                 }

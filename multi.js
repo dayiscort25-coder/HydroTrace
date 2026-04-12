@@ -619,17 +619,6 @@ function MultiSimulation({ savedState, onSaveState }) {
                     });
                     y += 5;
                   }
-                  // Concentrations
-                  if (results.cd) {
-                    doc.setFontSize(12); doc.setTextColor(30, 58, 95); doc.text('Concentraciones', 14, y); y += 7;
-                    doc.setFontSize(8); doc.setTextColor(60);
-                    Object.keys(results.cd).forEach(function(m) {
-                      var c = results.cd[m];
-                      if (c) { doc.text(m + ':  Carga=' + (c.load != null ? c.load.toFixed(4) : '-') + ' mg  |  Conc=' + (c.conc != null ? c.conc.toFixed(6) : '-') + ' mg/L', 14, y); y += 4; }
-                      if (y > 270) { doc.addPage(); y = 20; }
-                    });
-                    y += 3;
-                  }
                   // Event table
                   if (results.et && Array.isArray(results.et)) {
                     if (y > 220) { doc.addPage(); y = 20; }
