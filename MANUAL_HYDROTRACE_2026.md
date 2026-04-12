@@ -246,11 +246,15 @@ Donde $D$ es la duración en horas.
 
 $$t_c = 0.0195 \times L^{0.77} \times S^{-0.385} \quad [min]$$
 
-#### 3.2.6 Carga Total Movilizada por Metal
+#### 3.2.6 Concentración de Contaminantes
 
 **Carga total movilizada por metal $m$:**
 
 $$\text{Carga}_m = \frac{TLW_m}{100} \times B_0(m) \times A \quad [mg]$$
+
+**Concentración en el volumen de escorrentía:**
+
+$$C_m = \frac{\text{Carga}_m}{V_t \times 1000} \quad [mg/L]$$
 
 #### 3.2.7 Serie de Intensidad (Hietograma Sintético)
 
@@ -341,14 +345,14 @@ El sistema clasifica automáticamente el riesgo según el TLW del metal dominant
 - Parámetros de entrada (título, dirección, área, material, etc.)
 - Resultados hidrológicos (Qp, Vt, tc)
 - Tabla TLW por metal (T1, T2, T3, TLW%)
-- Tabla de impacto ambiental (Carga mg por metal)
+- Tabla de concentraciones (Carga mg, Conc. mg/L)
 - Capturas de las gráficas (generadas con html2canvas)
 - Pie de página con copyright
 
 **Excel:**
 - Hoja "Parámetros": todos los inputs
 - Hoja "TLW": tabla T1/T2/T3/TLW por metal
-- Hoja "Impacto": carga por metal
+- Hoja "Impacto": carga y concentración por metal
 
 ---
 
