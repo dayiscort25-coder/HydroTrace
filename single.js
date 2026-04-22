@@ -526,13 +526,13 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
                     h('td', { className: 'px-2 py-1.5 text-center' }, r.T2.toFixed(3)),
                     h('td', { className: 'px-2 py-1.5 text-center' }, r.T3.toFixed(3)),
                     h('td', { className: 'px-2 py-1.5 text-center font-bold' }, r.TLW.toFixed(3)),
-                    h('td', { className: 'px-2 py-1.5 text-center' }, r.p1.toFixed(1) + '%'),
-                    h('td', { className: 'px-2 py-1.5 text-center' }, r.p2.toFixed(1) + '%'),
-                    h('td', { className: 'px-2 py-1.5 text-center' }, r.p3.toFixed(1) + '%'),
-                    h('td', { className: 'px-2 py-1.5 text-center' }, results.B0[m].toFixed(2)),
-                    h('td', { className: 'px-2 py-1.5 text-center' }, w.total.toFixed(2)),
+                    h('td', { className: 'px-2 py-1.5 text-center' }, r.p1.toFixed(3) + '%'),
+                    h('td', { className: 'px-2 py-1.5 text-center' }, r.p2.toFixed(3) + '%'),
+                    h('td', { className: 'px-2 py-1.5 text-center' }, r.p3.toFixed(3) + '%'),
+                    h('td', { className: 'px-2 py-1.5 text-center' }, results.B0[m].toFixed(3)),
+                    h('td', { className: 'px-2 py-1.5 text-center' }, w.total.toFixed(3)),
                     h('td', { className: 'px-2 py-1.5 text-center' },
-                      h('span', { className: 'px-2 py-0.5 rounded-full text-[10px] font-bold ' + (w.eff > 80 ? 'bg-green-100 text-green-700' : w.eff > 50 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700') }, w.eff.toFixed(1) + '%')
+                      h('span', { className: 'px-2 py-0.5 rounded-full text-[10px] font-bold ' + (w.eff > 80 ? 'bg-green-100 text-green-700' : w.eff > 50 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700') }, w.eff.toFixed(3) + '%')
                     )
                   );
                 })
@@ -556,9 +556,9 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
                   var d = results.imp[m];
                   return h('tr', { key: m, className: i % 2 === 0 ? 'bg-blue-50/30' : '' },
                     h('td', { className: 'px-3 py-1.5 font-bold text-center', style: { color: MC[m] } }, m),
-                    h('td', { className: 'px-3 py-1.5 text-center' }, d.load_mg.toFixed(4)),
-                    h('td', { className: 'px-3 py-1.5 text-center' }, (d.load_mg / 1000).toFixed(6)),
-                    h('td', { className: 'px-3 py-1.5 text-center' }, d.conc.toFixed(6))
+                    h('td', { className: 'px-3 py-1.5 text-center' }, d.load_mg.toFixed(3)),
+                    h('td', { className: 'px-3 py-1.5 text-center' }, (d.load_mg / 1000).toFixed(3)),
+                    h('td', { className: 'px-3 py-1.5 text-center' }, d.conc.toFixed(3))
                   );
                 })
               )
