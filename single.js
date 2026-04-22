@@ -514,7 +514,7 @@ function SingleSimulation({ preloadedParams, savedState, onSaveState }) {
             h('table', { className: 'w-full text-sm' },
               h('thead', null,
                 h('tr', { className: 'bg-gradient-to-r from-[#2e86c1] to-[#5dade2] text-white' },
-                  ['Metal', 'T1', 'T2', 'T3', 'TLW', 'T1%', 'T2%', 'T3%', 'B0', 'Lavado', 'Efic%'].map(function (c) { return h('th', { key: c, className: 'px-2 py-2 text-[10px] font-bold text-center' }, c); })
+                  ['Metal', 'T1', 'T2', 'T3', 'TLW', 'T1%', 'T2%', 'T3%', 'Acumulación', 'Lavado', 'Efic%'].map(function (c) { return h('th', { key: c, className: 'px-2 py-2 text-[10px] font-bold text-center' }, c); })
                 )
               ),
               h('tbody', null,
