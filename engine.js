@@ -2,16 +2,16 @@
 // All math functions exactly matching the Python reference
 
 const DM = {
-  Pb: { LW:55.2, ML:62.0, LE:18.5, Ler:15.3, Bmax:120, kb:0.40, kw:0.15, n:1.2 },
+  Mn: { LW:63.8, ML:56.0, LE:21.7, Ler:22.7, Bmax:200, kb:0.42, kw:0.16, n:1.2 },
+  Cd: { LW:68.7, ML:65.0, LE:30.2, Ler:25.4, Bmax:8,   kb:0.45, kw:0.20, n:1.4 },
   Zn: { LW:70.1, ML:48.0, LE:25.3, Ler:28.1, Bmax:350, kb:0.50, kw:0.18, n:1.1 },
   Cu: { LW:58.4, ML:55.0, LE:20.8, Ler:19.6, Bmax:85,  kb:0.35, kw:0.14, n:1.3 },
-  Cr: { LW:45.6, ML:42.0, LE:12.4, Ler:10.8, Bmax:45,  kb:0.30, kw:0.12, n:1.0 },
-  Ni: { LW:52.3, ML:50.0, LE:22.1, Ler:20.5, Bmax:55,  kb:0.38, kw:0.13, n:1.1 },
-  Cd: { LW:68.7, ML:65.0, LE:30.2, Ler:25.4, Bmax:8,   kb:0.45, kw:0.20, n:1.4 },
-  Fe: { LW:40.2, ML:38.0, LE:8.5,  Ler:12.3, Bmax:800, kb:0.25, kw:0.10, n:0.9 },
-  Mn: { LW:63.8, ML:56.0, LE:21.7, Ler:22.7, Bmax:200, kb:0.42, kw:0.16, n:1.2 },
+  Pb: { LW:55.2, ML:62.0, LE:18.5, Ler:15.3, Bmax:120, kb:0.40, kw:0.15, n:1.2 },
   Co: { LW:48.5, ML:44.0, LE:15.6, Ler:14.2, Bmax:25,  kb:0.32, kw:0.11, n:1.0 },
+  Ni: { LW:52.3, ML:50.0, LE:22.1, Ler:20.5, Bmax:55,  kb:0.38, kw:0.13, n:1.1 },
   Ba: { LW:42.8, ML:40.0, LE:10.2, Ler:18.9, Bmax:150, kb:0.28, kw:0.09, n:0.8 },
+  Fe: { LW:40.2, ML:38.0, LE:8.5,  Ler:12.3, Bmax:800, kb:0.25, kw:0.10, n:0.9 },
+  Cr: { LW:45.6, ML:42.0, LE:12.4, Ler:10.8, Bmax:45,  kb:0.30, kw:0.12, n:1.0 },
 };
 
 const SM = { 'Asfalto': 0.85, 'Concreto': 0.80, 'Adoquín': 0.60, 'Sup. mixta': 0.70 };
